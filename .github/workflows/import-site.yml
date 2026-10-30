@@ -1,7 +1,7 @@
 name: Prepare website
 on:
   push:
-    paths: ['.github/workflows/import-site.yml', 'help-antarctica-v31.tar.gz']
+    paths: ['.github/workflows/import-site.yml', 'help-antarctica-v31.tar.gz', 'help-antarctica-v33.tar.gz']
   workflow_dispatch:
 permissions:
   contents: write
@@ -10,19 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Extract approved website
+      - name: Extract approved website and update
         shell: python
         run: |
           import tarfile,pathlib
-          with tarfile.open('help-antarctica-v31.tar.gz') as archive:
-            for item in archive.getmembers():
-              if not item.isfile() or not item.name.startswith('dist/'):continue
-              name=item.name.removeprefix('dist/')
-              if name.startswith('.openai/'):continue
-              target=pathlib.Path('docs')/name
-              assert '..' not in target.parts
-              target.parent.mkdir(parents=True,exist_ok=True)
-              target.write_bytes(archive.extractfile(item).read())
+          for release in ('help-antarctica-v31.tar.gz','help-antarctica-v33.tar.gz'):
+            with tarfile.open(release) as archive:
+              for item in archive.getmembers():
+                if not item.isfile() or not item.name.startswith('dist/'):continue
+                name=item.name.removeprefix('dist/')
+                if name.startswith('.openai/'):continue
+                target=pathlib.Path('docs')/name
+                assert '..' not in target.parts
+                target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes(archive.extractfile(item).read())
           pathlib.Path('docs/.nojekyll').touch()
       - name: Commit website files
         run: |
@@ -30,5 +31,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add docs
           git diff --cached --quiet && exit 0
-          git commit -m 'Publish Antarctica website v31'
+          git commit -m 'Publish Antarctica website v33'
           git push
