@@ -1,0 +1,7 @@
+@font-face{font-family:Moderustic;src:url('assets/Moderustic.ttf') format('truetype');font-weight:300 800;font-display:swap}
+.intro-copy h1,.story-card h2,.dialog-inner h2,.route-inner h2{font-family:Moderustic,Arial,sans-serif;font-weight:600;letter-spacing:-.025em;text-transform:none;font-optical-sizing:auto}
+.intro-description,.start-button,.intro-caption{font-family:Moderustic,Arial,sans-serif}
+.intro-copy .start-button{display:inline-flex;flex-direction:row;flex-wrap:nowrap;align-items:center;white-space:nowrap}
+.intro-copy .start-button>span{white-space:nowrap;flex:0 0 auto}
+.intro-copy .start-button>svg{flex-shrink:0}
+@media(max-width:700px){.intro-copy .start-button{width:min(260px,84vw);max-width:none;gap:12px;font-size:15px;line-height:1.2;min-height:58px;padding:17px 20px}.intro-copy .start-button>svg{flex:0 0 20px;width:20px;height:20px}}

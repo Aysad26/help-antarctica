@@ -1,4 +1,4 @@
-import {scenes,modals} from './story.mjs?v=32';
+import {scenes,modals} from './story.mjs?v=37';
 
 // Active scene/background/canvas/dialog assets only; old design variants are
 // deliberately excluded. Shared URLs reuse the browser's normal image cache.
@@ -15,4 +15,4 @@ const rendererImages=[
 export const imageAssets=[...new Set([
  ...scenes.map(s=>s.image),...Object.values(modals).map(m=>m.image),...rendererImages
 ].filter(Boolean))];
-export const fontAssets=['700 16px Museo','600 16px Inter'];
+export const fontAssets=['700 16px LINESeedJP','600 16px Moderustic','600 16px Inter'];

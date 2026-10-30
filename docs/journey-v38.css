@@ -1,0 +1,2 @@
+@font-face{font-family:LINESeedJP;src:url('assets/LINESeedJP-Bold-latin-cyrillic.woff') format('woff');font-style:normal;font-weight:700;font-display:swap}
+.intro-copy h1,.story-card h2,.dialog-inner h2,.route-inner h2{font-family:LINESeedJP,Moderustic,Arial,sans-serif;font-weight:700;letter-spacing:-.025em;text-transform:none}

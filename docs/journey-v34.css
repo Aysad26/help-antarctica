@@ -1,0 +1,4 @@
+@font-face{font-family:TikTokSans;src:url('assets/TikTokSans.ttf') format('truetype');font-weight:300 900;font-display:swap}
+.intro-copy h1,.story-card h2,.dialog-inner h2,.route-inner h2{font-family:TikTokSans,Arial,sans-serif;font-weight:600;letter-spacing:-.025em;text-transform:none;font-optical-sizing:auto}
+.intro-description,.start-button,.intro-caption{font-family:TikTokSans,Arial,sans-serif}
+@media(max-width:700px){.intro-copy .start-button{font-size:15px;font-weight:600;min-height:58px;padding:17px 20px;width:242px}.intro-copy .start-button svg{width:20px;height:20px}}
