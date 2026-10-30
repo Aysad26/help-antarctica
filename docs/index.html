@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eaf4fa">
+  <meta name="description" content="От первой встречи с пингвинами до огней полярной станции. Отправляйтесь в интерактивное путешествие по миру Антарктики.">
+  <title>Help Antarctica — почувствовать, чтобы сохранить</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/museo.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="assets/penguins.webp" as="image">
+  <link rel="stylesheet" href="style.css?v=31">
+  <link rel="stylesheet" href="experience.css?v=31">
+  <link rel="stylesheet" href="expedition.css?v=31">
+  <link rel="stylesheet" href="realism.css?v=31">
+  <link rel="stylesheet" href="finishing.css?v=31">
+  <link rel="stylesheet" href="journey-v14.css?v=31">
+  <link rel="stylesheet" href="journey-v15.css?v=31">
+  <link rel="stylesheet" href="journey-v16.css?v=31">
+  <link rel="stylesheet" href="journey-v17.css?v=31">
+  <link rel="stylesheet" href="journey-v18.css?v=31">
+  <link rel="stylesheet" href="journey-v19.css?v=31">
+  <link rel="stylesheet" href="journey-v20.css?v=31">
+  <link rel="stylesheet" href="journey-v21.css?v=31">
+  <link rel="stylesheet" href="journey-v22.css?v=31">
+  <link rel="stylesheet" href="journey-v24.css?v=31">
+  <link rel="preload" href="assets/foreground-open-v24.webp" as="image">
+  <link rel="preload" href="assets/foreground-ice-v24.webp" as="image">
+  <link rel="stylesheet" href="journey-v25.css?v=31">
+  <link rel="stylesheet" href="journey-v26.css?v=31">
+  <link rel="stylesheet" href="journey-v27.css?v=31">
+  <link rel="stylesheet" href="journey-v28.css?v=31">
+  <link rel="stylesheet" href="journey-v29.css?v=31">
+  <link rel="stylesheet" href="journey-v30.css?v=31">
+  <link rel="stylesheet" href="journey-v31.css?v=31">
+  <script src="preloader.mjs?v=31" type="module"></script>
+  <script src="app.js?v=31" type="module"></script>
+</head>
+<body class="prestart is-loading">
+  <div class="site-preloader" id="sitePreloader" role="status" aria-label="Загружаем путешествие">
+    <div class="preloader-mark" aria-hidden="true">
+      <svg class="preloader-ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17.5" pathLength="1"/></svg>
+      <svg class="preloader-star" viewBox="0 0 40 40" fill="none"><path d="m20 4 4.8 12.3L36 20l-12.2 4.3L20 36l-4.4-11.7L4 20l11.6-3.7L20 4Z"/><path d="m20 10-3.3 10H20v10l3.4-10H20V10Z" fill="currentColor" stroke="none"/></svg>
+    </div>
+    <div class="preloader-status" aria-live="off">Загрузка 0%</div>
+  </div>
+  <noscript><style>.site-preloader{display:none}</style></noscript>
+  <a href="#story" class="skip-link">Перейти к путешествию</a>
+  <div id="world" aria-hidden="true">
+    <div class="sky" id="sky"></div>
+    <div class="haze"></div>
+    <div class="distant-ice" id="distantIce"></div>
+    <div class="icebergs" id="icebergs"></div>
+    <div class="ocean" id="ocean"></div>
+    <canvas id="waterCanvas"></canvas>
+  </div>
+  <div id="nearWaterBackdrop" class="ocean near-water-plane" aria-hidden="true"></div>
+  <div id="foregroundWater" class="ocean foreground-water near-water-plane" aria-hidden="true"></div>
+  <canvas id="depthWorld" aria-hidden="true"></canvas>
+  <div id="eveningGlow" aria-hidden="true"></div>
+  <main id="story" aria-label="Путешествие по Антарктике" tabindex="-1" inert>
+    <div class="scene-track" id="sceneTrack"></div>
+    <section class="albatross-passage" id="albatrossPassage" aria-label="Пролёт чернобрового альбатроса" aria-hidden="true" inert>
+      <img class="albatross-flight" src="assets/albatross-near-v14.webp" width="1536" height="1024" alt="Чернобровый альбатрос парит с расправленными крыльями" decoding="async">
+      <button class="species-label albatross-label" data-modal="albatross" aria-label="Чернобровый альбатрос: открыть справку" aria-haspopup="dialog" aria-controls="infoDialog"><span class="info-i" aria-hidden="true">i</span><span class="species-name" aria-hidden="true">Чернобровый альбатрос</span></button>
+    </section>
+  </main>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none"><defs><filter id="snow-match" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1.06 0 0 0 .008 0 1.08 0 0 .005 0 0 1.10 0 .002 0 0 0 1 0"/></filter></defs></svg>
+  <canvas id="effectsCanvas" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <header class="header">
+    <button class="brand" id="homeButton" aria-label="Help Antarctica — вернуться к началу">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="17.5"/><path d="m20 4 4.8 12.3L36 20l-12.2 4.3L20 36l-4.4-11.7L4 20l11.6-3.7L20 4Z"/><path d="m20 10-3.3 10H20v10l3.4-10H20V10Z" fill="currentColor" stroke="none"/></svg>
+      <span>HELP<span class="brand-second">ANTARCTICA</span></span>
+    </button>
+    <div class="header-center" id="headerCenter">Почувствовать, чтобы сохранить</div>
+    <div class="header-actions">
+    <button class="pause-button" id="motionToggle" aria-label="Приостановить анимации" aria-pressed="false"><span id="motionIcon" aria-hidden="true">Ⅱ</span><span class="pause-label">Движение</span></button>
+      <button class="icon-button snow-control" id="snowToggle" title="Выключить снег" aria-label="Выключить снег" aria-pressed="true"><span aria-hidden="true">❄</span></button>
+      <button class="icon-button sound-control" id="soundToggle" title="Включить звук путешествия" aria-label="Включить звук путешествия" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path class="sound-wave" d="M16 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14"/><path class="sound-slash" d="m17 10 5 5m0-5-5 5"/></svg></button>
+      <button class="menu-button" id="menuButton" aria-label="Открыть маршрут" aria-haspopup="dialog"><span class="menu-label">Маршрут</span><span class="menu-lines" aria-hidden="true"></span></button>
+    </div>
+  </header>
+
+  <section class="intro" id="intro" aria-labelledby="introTitle">
+    <div class="intro-grid" aria-hidden="true"></div>
+    <div class="intro-mask" id="introMask" aria-hidden="true"></div>
+    <div class="intro-copy">
+      <div class="eyebrow"><span class="tiny-line"></span> Путешествие к белому континенту</div>
+      <h1 id="introTitle">Далеко.<br>Но касается<br><em>каждого.</em></h1>
+      <p class="intro-description">Антарктика влияет на климат всей планеты.<br class="desktop-break"> Здесь — о её экосистемах, исследованиях и охране.</p>
+      <button class="primary-button start-button" id="startButton"><span>Начать путешествие</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+    </div>
+    <div class="intro-geo" aria-hidden="true"><span>66°33′ Ю. Ш.</span><i></i><span>АНТАРКТИЧЕСКИЙ КРУГ</span></div>
+    <div class="intro-bottom"><a class="intro-credit" href="https://webanatomy.ru/" target="_blank" rel="noopener noreferrer">Дизайн и разработка — студия Веб Анатомия <span>(архивный проект)</span></a></div>
+  </section>
+
+  <div class="landing-layer" id="landingLayer" aria-hidden="true">
+    <div id="finalGround" class="final-ground" aria-hidden="true"></div>
+    <div class="coast-terrain" id="coastTerrain"><div class="coast-texture"></div></div>
+    <div class="landing-station" id="landingStation"><img src="assets/research-station.webp" alt=""><div class="station-ground"></div></div>
+    <div class="landing-dock" id="landingDock"><img src="assets/research-pier-v4.webp" alt=""></div>
+  </div>
+  <div id="shipApproach" aria-hidden="true">
+    <div class="landing-ship" id="landingShip"><img src="assets/ship-approach-v30.webp" alt=""></div>
+    <canvas id="shipWakeCanvas"></canvas>
+  </div>
+  <div class="journey-ui" id="journeyUI" inert>
+
+    <footer class="journey-footer">
+      <div class="navigation-hint" id="navigationHint"><span class="scroll-glyph" aria-hidden="true">↔</span><span class="desktop-hint">Листайте, чтобы продолжить</span><span class="mobile-hint">Листайте · удерживайте, чтобы приблизить</span></div>
+      <nav class="chapter-nav" id="chapterNav" aria-label="Главы путешествия"></nav>
+      <div class="next-controls"><button id="previousButton" class="nav-arrow" aria-label="Предыдущая глава">←</button><span id="pageCounter">01 <i>/ 13</i></span><button id="nextButton" class="nav-arrow" aria-label="Следующая глава">→</button></div>
+      <div class="progress-track"><div id="progressBar"></div></div>
+    </footer>
+  </div>
+
+  <dialog class="info-dialog" id="infoDialog" aria-labelledby="modalTitle"><div class="dialog-inner"><button class="dialog-close" id="closeDialog" aria-label="Закрыть справку">×</button><div id="modalContent"></div></div></dialog>
+  <dialog class="route-dialog" id="routeDialog" aria-labelledby="routeTitle"><div class="route-inner"><button class="dialog-close" id="closeRoute" aria-label="Закрыть маршрут">×</button><div class="eyebrow">Полевой дневник</div><h2 id="routeTitle">Встречи<br>на краю мира.</h2><p class="route-description">Листайте по порядку или выберите встречу.</p><nav id="routeList" aria-label="Выбрать главу"></nav><button class="text-button route-about" data-modal="about">Об этом путешествии ↗</button></div></dialog>
+  <div id="holdHint" aria-hidden="true">Чуть ближе к Антарктике</div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <noscript><div class="noscript-message">Для интерактивного путешествия включите JavaScript. <a href="https://www.bas.ac.uk/about/education-and-schools/antarctic-wildlife/">Прочитать об Антарктике</a></div></noscript>
+</body>
+</html>

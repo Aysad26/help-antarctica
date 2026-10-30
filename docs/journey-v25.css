@@ -1,0 +1,30 @@
+/* Higher near-water texture behind the subjects; the registered lower strip
+   still handles their physical occlusion. Both copies sample identical pixels. */
+.near-water-plane{
+ position:fixed;inset:0;height:100svh;pointer-events:none;
+ filter:saturate(.95) brightness(calc(1 - var(--dusk)*.24));
+ transform:translateY(calc(var(--depth)*-10svh)) scale(var(--zoom));
+ transform-origin:50% 70%;
+}
+#nearWaterBackdrop{
+ z-index:1;
+ mask-image:linear-gradient(transparent 71.5%,#000 78%);
+ -webkit-mask-image:linear-gradient(transparent 71.5%,#000 78%);
+}
+.intro-credit{font-size:10px;line-height:1.6;color:#587b90;text-decoration:none;max-width:520px}
+.intro-credit:hover{color:#1384b4}
+.intro-credit:focus-visible{outline:2px solid #1384b4;outline-offset:5px}
+@media(min-width:701px){
+ .orca-wrap{
+  width:calc(var(--orca-base-size)*.9975);
+  right:calc(var(--orca-base-right) - var(--orca-base-size)*.02375 - 2.5vw);
+ }
+}
+@media(max-width:700px){
+ #nearWaterBackdrop{
+  mask-image:linear-gradient(transparent 82%,#000 88%);
+  -webkit-mask-image:linear-gradient(transparent 82%,#000 88%);
+ }
+ .intro-credit{font-size:9px;max-width:340px}
+ .intro-credit span{white-space:nowrap}
+}

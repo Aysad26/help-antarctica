@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="#173f50" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" role="img" aria-labelledby="title desc">
+<title id="title">Help Antarctica</title><desc id="desc">Буква А в форме ледяной вершины, линия океана и отражение.</desc>
+<path d="M9 38a21 21 0 1 1 30 0" opacity=".55"/>
+<path d="M11 29 24 8 37 29 29 26 24 19 19 26Z"/>
+<path d="m24 8-4 17 4-6 5 7" fill="#173f50" stroke="none" opacity=".72"/>
+<path d="M7 33c6-4 11-4 17 0s11 4 17 0" stroke="#138bb3"/>
+<path d="m19 38 5 8 5-8" opacity=".32" stroke-width="1"/>
+</svg>

@@ -1,0 +1,6 @@
+/* The vessel is seen through the opening, then passes behind the far column.
+   Its hull, contact wash and reflection share that occlusion, without a fade. */
+#shipApproach{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;visibility:hidden;opacity:1;scale:var(--zoom);transform-origin:55% 80%}
+#shipApproach .landing-ship{position:absolute;left:0;top:0;bottom:auto;max-width:none;will-change:transform,width;opacity:1}
+#shipApproach .landing-ship img{display:block;width:100%;height:auto;filter:saturate(.78) brightness(calc(.97 - var(--dusk)*.1164));opacity:1}
+#shipApproach #shipWakeCanvas{filter:brightness(calc(1 - var(--dusk)*.12))}

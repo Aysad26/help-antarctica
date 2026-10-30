@@ -1,0 +1,19 @@
+/* Compact mobile information buttons; the desktop captions keep their names. */
+.species-label:focus-visible{outline:2px solid #168fc1;outline-offset:3px}
+@media(max-width:700px){
+ #story .species-label{
+  display:grid;place-items:center;width:44px;height:44px;min-height:44px;
+  padding:7px;gap:0;border:0;border-radius:50%;background:transparent;
+  box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+ }
+ #story .species-label .species-name,#story .species-label .passage-more{display:none}
+ #story .species-label .info-i{
+  box-sizing:border-box;width:30px;height:30px;font-size:20px;line-height:1;
+  background:#f3fafbed;color:#0c7fa2;border:1px solid #ffffffd9;
+  box-shadow:0 2px 9px #0b33451a;
+ }
+ #story .species-label:active .info-i{background:#fff}
+ .krill-wrap .species-label{right:calc(15% + 8px)}
+ .swimmer-wrap .species-label{right:8px}
+ .weddell-wrap .species-label{right:calc(6% + 4px)}
+}

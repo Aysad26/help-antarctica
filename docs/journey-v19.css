@@ -1,0 +1,15 @@
+/* v19 finishing pass: preserve the approved camera, surface and branding. */
+/* Match the overcast panorama with small, local corrections. The original
+   ocean and foreground water share their unchanged grading and geometry. */
+.tourist-rig{filter:saturate(.81) contrast(.97) brightness(.99)}
+.icearch-wrap .animal-image{filter:saturate(.62) contrast(.97) brightness(1.02)}
+.workers-wrap .animal-image{filter:saturate(.70) contrast(.97) brightness(.90) drop-shadow(0 6px 3px #1b2e3d30)}
+/* Canvas animals get hints that follow their real photographic landmarks. */
+.wildlife-hint{left:0;top:0;right:auto;bottom:auto;min-height:34px;transition:background .2s;will-change:transform}
+.weddell-wrap .species-label{top:12%;right:6%}
+@media(max-width:700px){
+ .cormorant-wrap .species-label{top:8%;right:0}
+ .workers-wrap .species-label{top:-14%;right:10%}
+ .nav-arrow{position:relative;min-height:44px}
+ .nav-arrow:before{content:'';position:absolute;inset:0 -6px}
+}

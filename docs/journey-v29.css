@@ -1,0 +1,13 @@
+/* Match the water planes locally. The foreground keeps the approved v28
+   grade, scale, travel and masks; the iceberg tops are not globally darkened. */
+.icebergs:after{
+ background:linear-gradient(transparent 65%,rgba(5,31,47,.15) 71%,rgba(5,31,47,.15));
+}
+#ocean{filter:saturate(.91) brightness(calc(.86 - var(--dusk)*.2064))}
+.site-preloader{animation:none}
+.preloader-mark{align-self:end}
+.site-preloader{grid-template-rows:1fr 1fr;gap:22px}
+.preloader-status{align-self:start;color:#557282;font:11px/1.4 Inter,Arial,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+@media(max-width:700px){
+ .icebergs:after{background:linear-gradient(transparent 79%,rgba(5,31,47,.15) 84%,rgba(5,31,47,.15))}
+}

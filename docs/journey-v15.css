@@ -1,0 +1,37 @@
+@font-face{font-family:Akt;src:url('assets/Akt.ttf') format('truetype');font-weight:100 900;font-display:swap}
+.intro-copy h1,.story-card h2,.dialog-inner h2,.route-inner h2{font-family:Akt,Arial,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:-.035em}
+.intro-copy h1{font-size:clamp(54px,5vw,92px);line-height:1.05}
+.story-card h2{font-size:31px;line-height:1.12}.dialog-inner h2{font-size:36px;line-height:1.12}.route-inner h2{font-size:42px}
+.tourist-rig{width:min(51vw,950px);right:4vw;bottom:6svh;filter:saturate(.85) brightness(.98)}
+.tourists-passage .passage-label{bottom:14svh;right:10%}
+.boat-reflection{top:94%;transform:scaleY(-.15);opacity:.09;mask-image:linear-gradient(#000,transparent 80%)}
+.boat-contact{bottom:7%;left:8%;width:76%}
+.passage-more{margin-left:4px;opacity:.65}.passage-label{min-height:36px}
+.jellies-passage .jellyfish-wrap{width:min(45vw,73svh);right:26vw;bottom:11svh}
+.jellies-passage .passage-label{top:auto;bottom:13svh;right:21%}
+.underleopard-wrap>.animal-image{display:none}.underleopard-wrap{width:52vw;right:0;bottom:13svh}
+.underleopard-wrap .species-label{top:40%;right:12%}
+.icebergs{filter:saturate(.62) contrast(.97) brightness(1.02)}
+.distant-ice{filter:blur(2px) saturate(.56) brightness(1.03)}
+.icearch-wrap .animal-image{filter:saturate(.66) contrast(.97) brightness(1.02)}
+.coast-terrain{filter:saturate(.70)}
+.landing-layer .final-ground{filter:url('#snow-match')}
+.modal-photo{margin:0 0 24px}.modal-photo .modal-visual{width:100%;max-width:none;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:3px;margin:0;background:#c4d8e1}
+.modal-photo figcaption{font-size:9px;line-height:1.5;color:#6d8793;padding-top:7px}
+@media(min-width:1700px){.story-card h2{font-size:35px}}
+@media(max-width:700px){
+ .intro-copy h1{font-size:clamp(34px,10.2vw,48px);line-height:1.07;letter-spacing:-.04em}
+ .story-card h2{font-size:23px;line-height:1.12}.dialog-inner h2{font-size:27px;line-height:1.13}.route-inner h2{font-size:31px}
+ .tourist-rig{width:100vw;right:0;bottom:9svh}
+ .tourists-passage .passage-label{bottom:17svh;right:6%}
+ .jellies-passage .jellyfish-wrap{width:76vw;right:12vw;bottom:20svh}
+ .jellies-passage .passage-label{bottom:13svh;right:9%}
+ .underleopard-wrap{width:105vw;right:-3vw;bottom:20svh}.underleopard-wrap .species-label{top:75%;right:9%}
+ .orca-wrap{width:108vw;right:-24vw}.orca-wrap .species-label{top:30%;right:calc(24vw + 14px)}
+ .orca-wrap .breach-window .animal-image{height:100%;width:100%;max-height:none;max-width:none}
+ .modal-photo{margin-bottom:19px}.modal-photo .modal-visual{height:auto;aspect-ratio:16/9}
+}
+
+/* Original 14400 × 1080 geometry; both registered layers sample this same surface. */
+.ocean-tile{background-image:url('assets/water-surface-v15.webp')}
+#ocean,#foregroundWater{filter:brightness(calc(1 - var(--dusk)*.24))}

@@ -1,0 +1,10 @@
+/* The panorama contains both ice and distant sea. Shade only its water band,
+   underneath the independently moving middle-water photograph. */
+.icebergs:after{
+ content:'';position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(transparent 65%,rgba(5,31,47,.055) 71%,rgba(5,31,47,.055));
+}
+#ocean{filter:saturate(.95) brightness(calc(.97 - var(--dusk)*.2328))}
+@media(max-width:700px){
+ .icebergs:after{background:linear-gradient(transparent 79%,rgba(5,31,47,.055) 84%,rgba(5,31,47,.055))}
+}

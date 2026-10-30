@@ -1,0 +1,16 @@
+/* Match the approved tourist-card photograph. The PNG already terminates
+   at the true hull waterline. Do not pull it below the foreground water. */
+.tourist-rig{width:min(48vw,920px);right:5vw;bottom:calc(15.5svh - min(5.28vw,101.2px));filter:saturate(.83) brightness(.98)}
+.boat-contact{bottom:16.5%;left:4%;width:92%;height:7px;opacity:.18}
+.boat-reflection{top:95.2%;opacity:.10;transform:scaleY(-.14);mask-image:linear-gradient(transparent 10%,#000 70%,#000 86%,transparent 89%)}
+.tourists-passage .passage-label{top:auto;bottom:calc(15.5svh + min(20.16vw,386.4px) + 10px);right:8vw}
+/* Camera travel brings the resting animal into view at full opacity. */
+.weddell-wrap,.weddell-wrap .animal-image{transition:none;animation:none}
+.weddell-wrap .animal-image{mask-image:none;-webkit-mask-image:none}
+.weddell-scene.active .story-card{opacity:1;transition-property:transform}
+@media(max-width:700px){
+ .tourist-rig{width:98vw;right:1vw;bottom:calc(15.5svh - 10.78vw)}
+ .tourists-passage .passage-label{bottom:calc(15.5svh + 41.16vw + 10px);right:7vw}
+ .underleopard-wrap .species-label{top:91%;right:6%}
+ .tern-passage .passage-label{bottom:18svh;right:6vw}
+}

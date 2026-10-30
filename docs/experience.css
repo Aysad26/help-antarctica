@@ -1,0 +1,150 @@
+/* The opening reveals the real first scene. No duplicate landscape or penguins. */
+.intro{background:none;isolation:auto;animation:none}
+.intro-mask{position:absolute;inset:0;z-index:1;background:#edf5fa;mask-image:linear-gradient(#fff,#fff),linear-gradient(#fff,#fff),url('assets/mask.png');mask-repeat:no-repeat;-webkit-mask-composite:xor,source-out;mask-composite:exclude,subtract;will-change:transform;pointer-events:none}
+.intro-grid{z-index:2;pointer-events:none}
+.intro-geo,.intro-bottom{z-index:3}
+.intro.opening{animation:none}
+.intro.opening .intro-mask{animation:openSceneMask 1.55s cubic-bezier(.65,0,.22,1) forwards}
+.intro.opening .intro-grid{opacity:0;transition:opacity .3s}
+.prestart .scene .story-card,.prestart .species-label{visibility:hidden;opacity:0}
+.prestart .pause-button{display:none}
+@keyframes openSceneMask{0%{transform:scale(1)}98%{opacity:1}100%{transform:scale(12);opacity:0}}
+
+/* The upper duplicate chapter label has been removed from the document. */
+.pause-button{position:static;inset:auto;width:30px;height:30px;justify-content:center}
+.pause-label{display:none}
+.animal-wrap{bottom:6vh}
+.penguins-wrap{bottom:6vh}
+.swimmer-wrap{bottom:8vh}
+.leopard-wrap{bottom:6vh}
+.cormorant-wrap{bottom:6vh}
+
+/* External circle pivots are set by scroll geometry in motion.mjs. */
+.orca-wrap{width:min(55vw,65vh);right:6vw;bottom:5vh}
+.whale-wrap{width:min(60vw,68vh);right:3vw;bottom:4vh}
+.breach-window{position:relative;width:100%;aspect-ratio:1;clip-path:polygon(-150% -150%,250% -150%,250% 100%,-150% 100%);pointer-events:none}
+.breach-orbit{position:absolute;inset:30% 0 auto;height:100%;width:100%;will-change:transform}
+.whale-wrap .breach-orbit{top:27%}
+.breach-window .animal-image{display:block;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;animation:none;transform:none;margin:0;filter:none}
+.water-occluder{display:block;position:absolute;z-index:3;left:-32%;bottom:-4%;width:160%;height:auto;max-width:none;pointer-events:none;opacity:1;mix-blend-mode:normal;filter:brightness(.62) saturate(1.18);mask-image:linear-gradient(90deg,transparent,#000 23%,#000 77%,transparent),linear-gradient(0deg,transparent,#000 30%,#000);mask-composite:intersect}
+.orca-wrap .species-label{top:22%;right:3%}
+.whale-wrap .species-label{top:39%;right:0}
+.replay-button{display:none}
+
+/* A continuous arrival: shared ship, pier, coast and station for both chapters. */
+.landing-layer{position:fixed;inset:0;z-index:2;pointer-events:none;visibility:hidden;opacity:0;overflow:hidden;--wake-opacity:0}
+.landing-layer>div{position:absolute;left:0;will-change:transform}
+.coast-terrain{bottom:-1px;width:240vw;height:31svh;background:linear-gradient(170deg,#d9edf6 0%,#ecf7fc 30%,#d4e8f2 63%,#b8d2df);clip-path:polygon(0 56%,1% 48%,3% 42%,4% 35%,7% 31%,10% 23%,14% 26%,18% 14%,24% 10%,31% 7%,40% 0,100% 0,100% 100%,0 100%);box-shadow:inset 0 40px 50px #fff8}
+.coast-texture{position:absolute;inset:0;background:url('assets/iceberg_3.webp') 66% 90%/auto 150svh;opacity:.29;mix-blend-mode:multiply;filter:saturate(.45)}
+.landing-station{width:min(75vw,1040px);bottom:8svh}
+.landing-station img{display:block;width:100%;height:auto;filter:drop-shadow(0 3px 3px #1f465422)}
+.station-ground{position:absolute;left:3%;right:3%;bottom:0;height:9%;background:linear-gradient(transparent,#dceef7);filter:blur(5px)}
+.landing-ship{width:57vw;bottom:10svh;max-width:none}
+.landing-ship img{display:block;width:100%;height:auto;filter:drop-shadow(0 9px 8px #143f5230)}
+.landing-wake{position:absolute;left:3%;right:3%;bottom:5%;height:8%;border-bottom:2px solid #c8edff99;border-radius:50%;opacity:var(--wake-opacity);filter:blur(1px)}
+.landing-dock{bottom:12.6svh;width:14vw;height:4svh;border-top:4px solid #b0c0c6}
+.landing-dock span{position:absolute;top:0;left:0;right:0;height:5px;background:#657e8c;box-shadow:0 -2px #f4fcff}
+.landing-dock i{position:absolute;top:2px;bottom:0;width:3px;background:#526c7d;box-shadow:1px 0 #c4d9e4;transform:skew(-5deg)}
+.landing-dock i:nth-of-type(1){left:10%}.landing-dock i:nth-of-type(2){left:48%}.landing-dock i:nth-of-type(3){left:86%}
+.ship-scene .animal-wrap,.station-scene .animal-wrap,.shore-foreground{display:none}
+.journey-footer{background:linear-gradient(transparent,#0a31496b)}
+
+@media(max-width:700px){
+  .scene .story-card,.station-scene .story-card{top:104px;padding:20px 22px 19px;max-height:calc(48svh - 45px)}
+  .story-card h2{font-size:24px;line-height:1.12;margin-bottom:12px}
+  .story-card p{font-size:11px;line-height:1.65}
+  .card-eyebrow{font-size:7px;margin-bottom:12px}
+  .card-fact{font-size:9px!important;line-height:1.6!important}
+  .card-divider{margin:13px 0 10px}
+  .card-link,.card-secondary{font-size:9px;margin-top:14px}
+  .pause-button{position:static;inset:auto;width:27px;height:30px;margin:0}
+  .header-actions{gap:3px}
+  .intro-copy{top:13.5%}
+  .intro-copy .start-button{top:calc(53svh - 13.5svh)}
+  .intro-copy .intro-caption{top:calc(53svh - 13.5svh + 68px)}
+  .intro-bottom{bottom:17px}
+  .penguins-wrap{bottom:9svh;right:10vw;width:68vw;max-height:27svh}
+  .penguins-wrap .animal-image{max-height:27svh;width:auto;margin:auto}
+  .penguins-wrap .species-label{top:6%;right:-2%}
+  .orca-wrap{width:min(92vw,41svh);right:-5vw;bottom:4svh}
+  .whale-wrap{width:min(96vw,45svh);right:2vw;bottom:4svh}
+  .orca-wrap .species-label{top:23%;right:6%}
+  .whale-wrap .species-label{top:39%;right:1%}
+  .swimmer-wrap{bottom:10svh;width:84vw}
+  .leopard-wrap{bottom:9svh}
+  .cormorant-wrap{bottom:7svh}
+  .landing-ship{width:80vw;bottom:11svh}
+  .landing-station{width:98vw;bottom:9svh}
+  .landing-dock{bottom:13svh;border-top-width:3px}
+  .coast-terrain{height:31svh}
+  .navigation-hint{font-size:7px}
+}
+@media(max-width:700px) and (max-height:740px){
+  .scene .story-card,.station-scene .story-card{top:98px;padding:17px 20px;max-height:calc(51svh - 42px)}
+  .story-card h2{font-size:22px;line-height:1.1}
+  .story-card p{font-size:10.5px;line-height:1.65}
+  .card-fact,.card-divider{display:none}
+  .intro-copy .start-button{top:calc(55svh - 13.5svh)}
+  .intro-copy .intro-caption{top:calc(55svh - 13.5svh + 64px)}
+}
+
+@media(max-width:700px){.intro-copy .start-button{position:relative;top:auto;left:auto;bottom:auto;margin-top:24px}.intro-copy .intro-caption{position:static;margin-top:17px}}
+@media(max-width:700px) and (max-height:740px){.intro-copy .start-button{margin-top:18px}}
+
+.whale-wrap .breach-orbit{width:90%;height:90%;top:10%}
+.landing-layer:after{content:"";position:absolute;inset:auto 0 0;height:120px;background:linear-gradient(transparent,#0a3149c9);opacity:var(--coast-shade,0)}
+@media(max-width:700px){.penguins-wrap .species-label{top:-26px;right:-2%}}
+
+/* Only the upper body emerges; both animals settle behind a fixed waterline. */
+.breach-window{clip-path:polygon(-150% -150%,250% -150%,250% 70%,-150% 70%)}
+.water-occluder{bottom:26%}
+/* The opaque water meets the geometric cut, so no tail fragment can reappear. */
+.water-occluder{width:130%;left:-15%;bottom:12%;mask-image:linear-gradient(90deg,transparent,#000 28%,#000 72%,transparent),linear-gradient(0deg,transparent,#000 40%,#000)}
+.whale-wrap .water-occluder{bottom:17%}
+
+.breach-window{clip-path:polygon(-150% -150%,250% -150%,250% var(--waterline,70%),-150% var(--waterline,70%))}
+.orca-wrap .water-occluder{bottom:26%}
+
+/* Narrative scale: large animals and vessels can continue beyond the viewport. */
+.whale-wrap{width:min(83vw,94vh);right:-7vw}
+.landing-ship{width:74vw}
+.landing-station{width:min(93vw,1300px)}
+@media(max-width:700px){
+  .orca-wrap{width:95vw;right:-5vw}
+  .whale-wrap{width:150vw;right:-23vw}
+  .landing-ship{width:155vw}
+  .landing-station{width:128vw}
+}
+@media(max-width:700px){.whale-wrap{right:-17vw}.whale-wrap .species-label{right:calc(17vw + 16px);top:44%}}
+
+/* A full viewport of breathing space between mobile encounters. */
+@media(max-width:700px){
+  .scene:not(:last-child){margin-right:100vw}
+}
+/* Restore the original, complete photograph of Pugh. */
+.swimmer-wrap{animation:none}
+.swimmer-original{clip-path:none;animation:none;transform:none}
+
+/* The panorama owns clipping. Chapter boxes must never slice photographic layers. */
+.scene{overflow:visible}
+.breach-window{mask-image:linear-gradient(to bottom,#000 0%,#000 calc(var(--waterline) - 1%),transparent var(--waterline))}
+.water-occluder{mask-image:linear-gradient(90deg,transparent,#000 28%,#000 72%,transparent),linear-gradient(0deg,transparent 0%,#000 35%,#000 72%,transparent 100%);mask-composite:intersect}
+.leopard-wrap .animal-image{mask-image:linear-gradient(to bottom,#000 0%,#000 79%,transparent 100%);filter:none}
+
+/* A shore with a feathered foot, instead of a vertical slab meeting the ocean. */
+.coast-terrain{left:-24vw!important;clip-path:polygon(0 100%,2% 90%,5% 76%,9% 52%,14% 35%,18% 23%,24% 16%,31% 10%,40% 0,100% 0,100% 100%);mask-image:linear-gradient(90deg,transparent,#000 9%),linear-gradient(to top,transparent,#000 16%);mask-composite:intersect}
+.landing-station{bottom:13svh}
+.landing-station img{mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent),linear-gradient(to top,transparent,#000 11%);mask-composite:intersect}
+.station-ground{display:none}
+.landing-dock{width:40vw;height:auto;bottom:10.8svh;border:0;background:none}
+.landing-dock img{display:block;width:100%;height:auto;filter:drop-shadow(0 5px 3px #173c4940);mask-image:linear-gradient(90deg,#000 0%,#000 85%,transparent)}
+@media(max-width:700px){
+ .intro-caption .mouse-icon{display:none}
+ .landing-station{bottom:14svh}
+ .landing-dock{width:58vw;bottom:10.7svh}
+}
+
+/* Photographic coast replaces the temporary polygon terrain. */
+.coast-terrain{width:180vw;height:55svh;bottom:4svh;background:url('assets/antarctic-coast-v4.webp') left bottom/100% 100% no-repeat;clip-path:none;box-shadow:none;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+.coast-texture{display:none}
+@media(max-width:700px){.coast-terrain{width:240vw;height:90vw;bottom:3svh}}

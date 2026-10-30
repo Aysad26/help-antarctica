@@ -1,0 +1,31 @@
+@font-face{font-family:Expedition;src:url('assets/RobotoCondensed.ttf') format('truetype');font-weight:100 900;font-display:swap}
+.intro-copy h1,.story-card h2,.dialog-inner h2,.route-inner h2{font-family:Expedition,'Arial Narrow',sans-serif;font-weight:700;letter-spacing:-.025em}
+.story-card h2{font-size:37px;line-height:1.05}.dialog-inner h2{font-size:42px;line-height:1.08}
+.penguins-scene{margin-right:150vw}.krill-scene{margin-right:180vw}
+.journey-passage{position:absolute;inset:0;z-index:3;visibility:hidden;pointer-events:none}
+.journey-passage .story-card{opacity:1;transform:translateY(-45%);pointer-events:auto;max-width:32vw}
+.journey-passage .species-label{pointer-events:auto}.passage-label{top:63%;right:7%}
+.tourist-rig{position:absolute;width:min(53vw,1000px);right:0;bottom:15svh;filter:saturate(.8) brightness(.97)}
+.tourist-photo{width:100%;display:block;position:relative;z-index:2}
+.boat-reflection{position:absolute;top:84%;left:0;width:100%;transform:scaleY(-.20);transform-origin:50% 0;opacity:.13;mask-image:linear-gradient(#000,transparent 80%);pointer-events:none}
+.boat-contact{position:absolute;left:14%;width:76%;height:8px;bottom:16%;background:radial-gradient(ellipse,#dce9e8a0,transparent 70%);z-index:3}
+.tourists-passage .passage-label{top:auto;bottom:13svh;right:12%}
+.leopard-wrap{width:min(62vw,1080px);right:0;bottom:10svh}.leopard-wrap .animal-image{mask-image:none;filter:saturate(.8) brightness(.96)}
+.leopard-wrap .species-label{top:20%;right:10%}
+.landing-station img,.landing-station .station-lit{mask-image:none;clip-path:inset(0 0 10% 0)}
+.landing-dock img{mask-image:none}.coast-terrain{mask-image:none}
+.landing-layer .final-ground{filter:saturate(.65) brightness(.94)}
+.workers-wrap:before{height:2.8%;filter:blur(2px);opacity:.8}
+@media(max-width:700px){
+ .scene.penguins-scene{margin-right:200vw}.scene.krill-scene{margin-right:200vw}
+ .story-card h2{font-size:27px;line-height:1.06}.dialog-inner h2{font-size:32px}
+ .journey-passage .story-card{max-width:none;transform:none;top:98px;left:6vw;width:88vw;padding:18px 21px;max-height:calc(48svh - 40px);overflow:auto}
+ .journey-passage .story-card p{font-size:12px;line-height:1.6}
+ .tourist-rig{width:100vw;right:0;bottom:13svh}.tourists-passage .passage-label{bottom:12svh;right:8%}
+ .underleopard-passage .passage-label{top:82%;right:8%}
+ .leopard-wrap{width:105vw;right:-3vw;bottom:12svh}.leopard-wrap .species-label{top:12%;right:8%}
+ .landing-layer .final-ground{width:510vw;background:none;clip-path:polygon(0 100%,0 96%,.5% 92%,.9% 85%,1.5% 82%,1.8% 73%,2.5% 70%,2.9% 61%,3.5% 59%,4% 48%,4.65% 45%,5% 38%,6% 34%,6.5% 26%,7.5% 22%,8.5% 14%,10% 12%,11.5% 5%,13% 0,100% 0,100% 100%)}
+ .landing-layer .final-ground:before,.landing-layer .final-ground:after{content:'';position:absolute;top:0;bottom:0;width:255vw;background:url('assets/shore-ground-v10.webp') left bottom/100% 100% no-repeat}
+ .landing-layer .final-ground:before{left:0}.landing-layer .final-ground:after{left:calc(255vw - 2px);transform:scaleX(-1)}
+}
+@media(prefers-reduced-motion:reduce){.boat-reflection{opacity:.10}}

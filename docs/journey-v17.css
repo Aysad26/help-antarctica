@@ -1,0 +1,25 @@
+/* Restore the original project font and natural sentence case. */
+.intro-copy h1,.story-card h2,.dialog-inner h2,.route-inner h2{font-family:Museo,Georgia,serif;font-weight:700;letter-spacing:-.025em;text-transform:none;font-optical-sizing:auto}
+.intro-copy h1{font-size:clamp(58px,6.8vw,105px);line-height:1.02}
+.story-card h2{font-size:35px;line-height:1.1}.dialog-inner h2{font-size:40px}
+/* This photo is taken from sea level. The water covers the lower hull, not
+   merely an oval shadow below a fully exposed boat. Both planes travel 1:1. */
+.tourist-rig{width:min(48vw,920px);right:5vw;bottom:calc(9svh - min(4.2vw,80px));filter:saturate(.75) brightness(.97)}
+.tourists-passage .passage-label{bottom:17svh;right:9%}
+.boat-contact{bottom:13%;width:91%;left:3%;height:10px;opacity:.3}
+.boat-reflection{top:86.8%;opacity:.13;transform:scaleY(-.13);mask-image:linear-gradient(#000,transparent 70%)}
+.underleopard-scene{margin-right:180vw}
+.tern-passage .passage-label{top:auto;bottom:21svh;right:14vw}
+.whale-wrap .animal-image,.orca-wrap .animal-image{filter:saturate(.86) contrast(.96)}
+@media(min-width:1700px){.story-card h2{font-size:38px}}
+@media(max-width:700px){
+ .intro-copy h1{font-size:clamp(42px,11.2vw,56px);line-height:1.03;letter-spacing:-.035em}
+ .story-card h2{font-size:25px;line-height:1.12}.dialog-inner h2{font-size:30px}.route-inner h2{font-size:35px}
+ .tourist-rig{width:98vw;right:1vw;bottom:calc(8svh - 8.5vw)}
+ .tourists-passage .passage-label{bottom:13svh;right:7vw}
+ .scene.underleopard-scene{margin-right:240vw}
+ .underleopard-wrap .species-label{top:91%;right:8%}
+ .tern-passage .passage-label{bottom:19svh;right:8vw}
+}
+
+@media(min-width:701px){.swimmer-scene{margin-right:0}}

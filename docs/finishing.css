@@ -1,0 +1,79 @@
+.intro-encounters{font-size:10px;letter-spacing:.3px;color:#658292}
+.card-mobile{display:none}
+@media(min-width:701px){.swimmer-scene{margin-right:85vw}}
+/* The source photograph remains available if canvas cannot initialize. */
+.pugh-surface{display:none;width:100%;height:auto;aspect-ratio:1737/906;filter:saturate(.86)}
+.pugh-ready .swimmer-original{display:none}
+.pugh-ready .pugh-surface{display:block}
+.swimmer-wrap .species-label{top:21%;right:0}
+/* Land is part of the arriving coast from the outset, never a new fade layer. */
+.landing-layer .final-ground{position:absolute;left:0;right:auto;bottom:-2px;width:180vw;height:43svh;z-index:3;opacity:1;filter:saturate(.72) brightness(.94);background:url('assets/shore-ground-v10.webp') center bottom/100% 100% no-repeat;transform-origin:50% 100%;mask-image:none;clip-path:polygon(0 100%,0 96%,1% 92%,1.8% 85%,3% 82%,3.6% 73%,5% 70%,5.8% 61%,7% 59%,8% 48%,9.3% 45%,10% 38%,12% 34%,13% 26%,15% 22%,17% 14%,20% 12%,23% 5%,26% 0,100% 0,100% 100%)}
+.landing-layer:after{display:none}
+@media(max-width:700px){
+ .intro-bottom{bottom:22px;left:8vw;right:8vw}
+ .intro-encounters{font-size:9px;line-height:1.5}
+ .scene .story-card,.station-scene .story-card{padding:18px 21px 17px;max-height:calc(48svh - 45px)}
+ .story-card .card-full{display:none}
+ .story-card .card-mobile{display:block;margin:0;font-size:12px;line-height:1.65}
+ .story-card h2{font-size:23px;line-height:1.14;margin-bottom:13px}
+ .card-link{font-size:10px;margin-top:16px}
+ .card-eyebrow{font-size:7px;letter-spacing:1.35px;margin-bottom:12px}
+ .swimmer-wrap{width:94vw;right:3vw;bottom:10svh}
+ .swimmer-wrap .species-label{top:24%;right:0}
+ .landing-layer .final-ground{height:36svh;width:255vw}
+ .modal-body p{font-size:14px;line-height:1.75}
+}
+@media(max-width:700px) and (max-height:740px){
+ .scene .story-card,.station-scene .story-card{top:98px;max-height:calc(48svh - 40px)}
+ .story-card h2{font-size:22px}
+ .story-card .card-mobile{font-size:12px;line-height:1.6}
+}
+.workers-wrap:before{left:28%;bottom:1.5%;width:65%;height:3.5%;background:radial-gradient(ellipse at 20% 50%,#152b3e77,transparent 32%),radial-gradient(ellipse at 80% 50%,#152b3e66,transparent 30%);filter:blur(3px)}
+/* Remove the old water-edge strip before joining the station to inland snow. */
+.landing-station img,.landing-station .station-lit{mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent),linear-gradient(to top,transparent 12%,#000 29%);mask-composite:intersect}
+.coast-terrain{mask-image:none}
+
+/* The opaque underwater frame is composed once, with no CSS layer toggles. */
+#depthWorld{position:fixed;inset:0;width:100%;height:100%;z-index:1;background:none;visibility:visible;opacity:1;clip-path:none;transform:none;filter:none;will-change:auto;pointer-events:none}
+body.underwater .story-card{backdrop-filter:none}
+.cormorant-wrap .animal-image{mask-image:none;filter:saturate(.86) brightness(.91);max-height:none;width:100%;height:auto}
+@media(max-width:700px){.cormorant-wrap{width:82vw;right:9vw;bottom:11svh}.cormorant-wrap .species-label{top:42%;right:0}}
+
+.landing-dock{z-index:2}
+.landing-dock img{mask-image:linear-gradient(#000 0%,#000 94%,transparent 100%)}
+
+body.approaching-land #foregroundWater{z-index:1}
+
+/* A quiet wind passage separates the two surface breaches. */
+.orca-scene{margin-right:160vw}
+/* The world is translated by progress; focus/drag must not scroll its viewport. */
+#story{overflow:clip}
+.albatross-passage{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0}
+.albatross-flight{position:absolute;display:block;height:auto;max-width:none;pointer-events:none;transform-origin:50% 50%;filter:saturate(.82) brightness(.97);will-change:transform}
+.albatross-label{position:absolute;right:auto;top:auto;pointer-events:auto;transform:translateX(-50%);white-space:nowrap}
+.route-passage .route-item-name{color:#217b9a}
+@media(max-width:700px){.scene.orca-scene{margin-right:200vw}.albatross-label{font-size:10px}}
+
+/* Desktop composition: use the open right side without changing phone poses. */
+@media(min-width:701px){
+ .orca-wrap{width:min(65vw,130svh);right:-14vw}
+ .whale-wrap{width:min(67vw,120svh);right:5vw}
+ .whale-wrap .species-label{right:3%;top:46%}
+ .orca-wrap .species-label{right:26%;top:36%}
+ .header-actions{gap:16px}
+ .header-actions .pause-button,.header-actions .icon-button{width:44px;height:44px}
+ .header-actions .pause-button>span:first-child{font-size:24px}
+ .header-actions .snow-control span{font-size:30px}
+ .header-actions .sound-control svg{width:29px;height:29px}
+ .header-actions .menu-button{min-height:44px;font-size:13px;gap:18px}
+ .header-actions .menu-lines{width:29px;height:12px}
+
+ /* Keep the source's land silhouette solid; discard only the old water foot. */
+ .landing-station img,.landing-station .station-lit{mask-image:none;clip-path:inset(0 0 10% 0)}
+ .landing-dock img{mask-image:none}
+ /* Two mirrored ground panels share edge pixels and keep their original scale. */
+ .landing-layer .final-ground{width:360vw;background:none;clip-path:polygon(0 100%,0 96%,.5% 92%,.9% 85%,1.5% 82%,1.8% 73%,2.5% 70%,2.9% 61%,3.5% 59%,4% 48%,4.65% 45%,5% 38%,6% 34%,6.5% 26%,7.5% 22%,8.5% 14%,10% 12%,11.5% 5%,13% 0,100% 0,100% 100%)}
+ .landing-layer .final-ground:before,.landing-layer .final-ground:after{content:'';position:absolute;top:0;bottom:0;width:180vw;background:url('assets/shore-ground-v10.webp') left bottom/100% 100% no-repeat}
+ .landing-layer .final-ground:before{left:0}
+ .landing-layer .final-ground:after{left:calc(180vw - 2px);transform:scaleX(-1)}
+}

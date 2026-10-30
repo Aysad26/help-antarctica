@@ -1,0 +1,25 @@
+/* A single neutral paper colour for every content panel and subject hint. */
+#story .story-card,.info-dialog,.route-dialog,.modal-fact{
+ background:#fff;border-color:#fff;backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+#story .species-label{background:#fff;border-color:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}
+.toast,.chapter-dot:after{background:#fff}
+.info-i{
+ font-family:Inter,Arial,sans-serif;font-style:normal;font-weight:600;
+ color:#3e4449;background:#fff;line-height:1;border:1px solid #d8dde0;
+}
+/* The arrow and colour keep the action readable without an underline. */
+.card-link{border-bottom:0;padding-bottom:0;margin-top:18px;text-decoration:none}
+.card-secondary{margin-top:18px;text-decoration:none}
+/* Keep the full boat, water contact and reflection together on the nearer plane. */
+.tourist-rig{bottom:calc(13.5svh - min(5.28vw,101.2px))}
+.tourists-passage .passage-label{bottom:calc(13.5svh + min(20.16vw,386.4px) + 10px)}
+/* The open water below the left flipper stays above the footer. */
+.orca-wrap .species-label{top:calc(56% - 48px);right:auto;left:4%}
+@media(max-width:700px){
+ #story .species-label{background:transparent}
+ #story .species-label .info-i{background:#fff;color:#3e4449;border-color:#fff;font-size:18px}
+ .card-link,.card-secondary{margin-top:12px}
+ .tourist-rig{bottom:calc(13.5svh - 10.78vw)}
+ .tourists-passage .passage-label{bottom:calc(13.5svh + 41.16vw + 10px)}
+}

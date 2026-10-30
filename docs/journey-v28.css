@@ -1,0 +1,5 @@
+/* Lift deep foreground shadows and soften microcontrast while keeping the
+   same registered pixels on both sides of the physical occlusion strip. */
+#nearWaterBackdrop,#foregroundWater{
+ filter:saturate(.87) contrast(.84) brightness(calc(1.065 - var(--dusk)*.2556));
+}

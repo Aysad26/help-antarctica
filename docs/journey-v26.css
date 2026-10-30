@@ -1,0 +1,28 @@
+@media(min-width:701px){
+ .intro-copy .start-button{font-size:16px;font-weight:600;min-height:62px;width:292px;padding:19px 24px}
+ .intro-copy .start-button svg{width:22px;height:22px}
+}
+.site-preloader{
+ position:fixed;inset:0;z-index:200;background:#eaf4fa;color:#12384b;
+ display:grid;place-items:center;opacity:1;visibility:visible;
+ transition:opacity .36s ease,visibility .36s;
+ animation:loaderSafeguard 6.5s steps(1,end) forwards;
+}
+.preloader-mark{position:relative;width:92px;height:92px;perspective:350px}
+.preloader-ring,.preloader-star{position:absolute;inset:0;width:100%;height:100%}
+.preloader-ring{transform:rotate(-90deg)}
+.preloader-ring circle{fill:none;stroke:currentColor;stroke-width:.65;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:loaderDraw 1s cubic-bezier(.3,.1,.25,1) forwards}
+.preloader-star{transform-origin:50% 50%;animation:loaderTurn 1.5s ease-in-out infinite}
+.preloader-star path{stroke:currentColor;stroke-width:.65;stroke-linejoin:round}
+.preloader-star path[fill="currentColor"]{stroke:none}
+.site-preloader.is-ready{opacity:0;visibility:hidden;pointer-events:none}
+.site-preloader.is-ready .preloader-star{animation-play-state:paused}
+@keyframes loaderDraw{to{stroke-dashoffset:0}}
+@keyframes loaderTurn{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+@keyframes loaderSafeguard{to{opacity:0;visibility:hidden;pointer-events:none}}
+@media(max-width:700px){.preloader-mark{width:76px;height:76px}}
+@media(prefers-reduced-motion:reduce){
+ .preloader-ring circle{animation:none;stroke-dashoffset:0}
+ .preloader-star{animation:none}
+ .site-preloader{transition:none}
+}

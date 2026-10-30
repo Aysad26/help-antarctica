@@ -1,0 +1,4 @@
+.penguin-water-surface{display:none;position:absolute;max-width:none;pointer-events:none;transform-origin:50% 100%;filter:saturate(.91);animation:penguinBreathe 6s ease-in-out infinite}
+.penguin-water-ready>.penguin-water-surface{display:block}
+.penguin-water-ready>.animal-image{opacity:0;animation:none;filter:none}
+@media(prefers-reduced-motion:reduce){.penguin-water-surface{animation:none}}

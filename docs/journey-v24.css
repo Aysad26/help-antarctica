@@ -1,0 +1,20 @@
+/* Shared photographic sampling. The lowest strip occludes subjects;
+   the raised copy sits behind them with its own soft upper edge. */
+.near-water-plane .near-water-tile{
+ position:absolute;bottom:0;left:0;
+ background-size:100% 100%;background-repeat:no-repeat;
+ transform-origin:50% 50%;will-change:transform;visibility:hidden;
+}
+.near-water-plane[data-water="open"].water-open-ready .near-water-tile{
+ background-image:url('assets/foreground-open-v24.webp');visibility:visible;
+}
+.near-water-plane[data-water="ice"].water-ice-ready .near-water-tile{
+ background-image:url('assets/foreground-ice-v24.webp');visibility:visible;
+}
+#foregroundWater{
+ mask-image:linear-gradient(transparent 88%,#000 90%);
+ -webkit-mask-image:linear-gradient(transparent 88%,#000 90%);
+}
+.near-water-plane:after{visibility:hidden}
+.near-water-plane[data-water="open"].water-open-ready:after,
+.near-water-plane[data-water="ice"].water-ice-ready:after{visibility:visible}
