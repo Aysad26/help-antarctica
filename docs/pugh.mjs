@@ -1,5 +1,5 @@
-import {pughPose} from './expedition-motion.mjs?v=31';
-import {sceneStride} from './motion.mjs?v=31';
+import {pughPose} from './expedition-motion.mjs?v=32';
+import {sceneStride} from './motion.mjs?v=32';
 
 // Reuse the complete v8 photograph. Animated mattes keep the identity and pose
 // intact while separating the head/torso from the two foreground hands.

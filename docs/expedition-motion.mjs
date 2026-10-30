@@ -1,4 +1,4 @@
-import {clamp,smooth,lerp} from './motion.mjs?v=31';
+import {clamp,smooth,lerp} from './motion.mjs?v=32';
 export function depthPose(progress){
  const descent=smooth((progress-2.28)/.72),ascent=smooth((progress-4.62)/.24);
  const amount=descent*(1-ascent);
@@ -7,8 +7,7 @@ export function depthPose(progress){
 // The Weddell encounter arrives by camera travel and physical surface clipping.
 // Its animal pixels never crossfade over the iceberg behind it.
 export function encounterOpacity(animal,distance,depth,underwater){
- if(animal==='weddell'||animal==='icearch')return 1;
- return (1-smooth((distance-.55)/.4))*(underwater?Math.min(1,depth*1.5):1-depth);
+ return 1;
 }
 export function snowScreenX(worldX,travel,depth,width){
  const span=width+100;
@@ -36,4 +35,4 @@ export function surfaceBoundary(width,height,progress,time){
  const count=Math.ceil(width/12);
  return Array.from({length:count+1},(_,i)=>{const x=width*i/count;return [x,surfaceY(x,width,height,progress,time)];});
 }
-export function surfaceForegroundOpacity(depth){return 1-smooth(depth/.25);}
+export function surfaceForegroundOpacity(depth){return depth>=1?0:1;}

@@ -1,4 +1,4 @@
-import {sceneTravel,smooth} from './motion.mjs?v=31';
+import {sceneTravel,smooth} from './motion.mjs?v=32';
 export function passagePose(progress,stop,width){
  const x=sceneTravel(stop,width)-sceneTravel(progress,width);
  return {x,alpha:1-smooth((Math.abs(x)/width-.45)/.55)};

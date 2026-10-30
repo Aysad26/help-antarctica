@@ -1,6 +1,6 @@
-import {clamp} from './motion.mjs?v=31';
-import {leopardSwimPose,leopardLandmarks} from './deep-life.mjs?v=31';
-import {shallowBirdPose} from './near-surface.mjs?v=31';
+import {clamp} from './motion.mjs?v=32';
+import {leopardSwimPose,leopardLandmarks} from './deep-life.mjs?v=32';
+import {shallowBirdPose} from './near-surface.mjs?v=32';
 
 export function ternBeak(p){
  return {x:p.x+p.width*(-.405*Math.cos(p.angle)-.294*Math.sin(p.angle)),y:p.y+p.width*(-.405*Math.sin(p.angle)+.294*Math.cos(p.angle))};

@@ -1,5 +1,5 @@
-import {createDeepLife} from './deep-life.mjs?v=31';
-import {depthPose,surfaceBoundary} from './expedition-motion.mjs?v=31';
+import {createDeepLife} from './deep-life.mjs?v=32';
+import {depthPose,surfaceBoundary} from './expedition-motion.mjs?v=32';
 
 // A single canvas owns the opaque water and its moving boundary. CSS no longer
 // swaps visibility, clip-path modes, backdrop filters or animated light layers.
@@ -22,7 +22,7 @@ export function createDepthWorld(canvas){
    b.save();b.filter=`blur(${height*.035}px)`;b.fillStyle=beam;b.beginPath();b.moveTo(x-width*.025,0);b.lineTo(x+width*.025,0);b.lineTo(x+width*.35,height);b.lineTo(x-width*.12,height);b.closePath();b.fill();b.restore();
   }
  }
- return {paint(progress,time,width,height,dpr){
+ return {reset(){lastSize='';lastFrame='';},paint(progress,time,width,height,dpr){
   resize(width,height,dpr);
   const amount=depthPose(progress).amount;
   const key=amount===0?'surface':`${progress}:${time}:${assetRevision}`;

@@ -1,0 +1,4 @@
+/* The arch extends into the next chapter. Its photographic outline, not the
+   chapter rectangle, must occlude the ship throughout the approach. Keep the
+   other chapters bounded to retain the mobile compositing improvements. */
+.scene.icearch-scene{contain:layout;overflow:visible}

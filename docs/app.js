@@ -1,21 +1,23 @@
-import {createPassages} from './passages.mjs?v=31';
-import {shipApproachPose,shipContactAt} from './ship-approach.mjs?v=31';
-import {createPenguinWater} from './penguin-water.mjs?v=31';
-import {createForegroundWater} from './foreground-water.mjs?v=31';
-import {createArrivalMotion} from './arrival-motion.mjs?v=31';
-import {sprayThresholds,makeSprayFragment,sprayFragmentPose} from './breach-spray.mjs?v=31';
-import {createAlbatross} from './albatross.mjs?v=31';
-import {createDepthWorld} from './ocean-depth.mjs?v=31';
-import {createPugh} from './pugh.mjs?v=31';
-import {createStationLights} from './station-lights.mjs?v=31';
-import {createLivingOcean} from './living-ocean.mjs?v=31';
-import {paintContactReflection} from './contact-water.mjs?v=31';
-import {createWildlifeLabels} from './wildlife-labels.mjs?v=31';
-import {createPaintBudget,paintDeadline} from './rendering.mjs?v=31';
-import {depthPose,encounterOpacity,snowScreenX,holdAmount,surfaceY,surfaceBoundary,surfaceForegroundOpacity} from './expedition-motion.mjs?v=31';
-import {scenes,modals} from './story.mjs?v=31';
-import {createSoundscape} from './soundscape.mjs?v=31';
-import {clamp,lerp,smooth,breachPose,landingPose,introMaskGeometry,sceneStride,sceneTravel,travelProgress,shoreGroundX,oceanTiles,adjacentStop,breachFoamGeometry} from './motion.mjs?v=31';
+import {createSnow} from './snow.mjs?v=32';
+import {createShoreRenderer} from './shore-renderer.mjs?v=32';
+import {createPassages} from './passages.mjs?v=32';
+import {shipApproachPose,shipContactAt} from './ship-approach.mjs?v=32';
+import {createPenguinWater} from './penguin-water.mjs?v=32';
+import {createForegroundWater} from './foreground-water.mjs?v=32';
+import {scrollArrivalPhase,easedCamera} from './arrival-motion.mjs?v=32';
+import {sprayThresholds,makeSprayFragment,sprayFragmentPose} from './breach-spray.mjs?v=32';
+import {createAlbatross} from './albatross.mjs?v=32';
+import {createDepthWorld} from './ocean-depth.mjs?v=32';
+import {createPugh} from './pugh.mjs?v=32';
+import {createStationLights} from './station-lights.mjs?v=32';
+import {createLivingOcean} from './living-ocean.mjs?v=32';
+import {paintContactReflection} from './contact-water.mjs?v=32';
+import {createWildlifeLabels} from './wildlife-labels.mjs?v=32';
+import {createPaintBudget,paintDeadline} from './rendering.mjs?v=32';
+import {depthPose,encounterOpacity,snowScreenX,holdAmount,surfaceY,surfaceBoundary,surfaceForegroundOpacity} from './expedition-motion.mjs?v=32';
+import {scenes,modals} from './story.mjs?v=32';
+import {createSoundscape} from './soundscape.mjs?v=32';
+import {clamp,lerp,smooth,breachPose,landingPose,introMaskGeometry,sceneStride,sceneTravel,travelProgress,oceanTiles,adjacentStop,breachFoamGeometry} from './motion.mjs?v=32';
 'use strict';
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
@@ -54,18 +56,9 @@ const reducedQuery=matchMedia('(prefers-reduced-motion: reduce)');
 let reduced=reducedQuery.matches;
 document.body.classList.toggle('reduced-motion',reduced);
 const sceneEls=$$('.scene');
-const desktopArrivals=createArrivalMotion();
 const arrivalScenes=[['orca',1],['whale',2],['swimmer',6]].map(([kind,index])=>({kind,index,card:$('.story-card',sceneEls[index]),image:$('.animal-image',sceneEls[index])}));
-function updateDesktopArrivals(dt){
- if(width<=700||!started)return;
- for(const item of arrivalScenes){
-  if(!item.image.complete||!item.image.naturalWidth)continue;
-  const r=item.card.getBoundingClientRect();
-  desktopArrivals.update(item.kind,r,width,dt,{paused:paused||document.hidden||!!$('dialog[open]'),reduced});
- }
-}
 function currentBreachPose(kind){
- return breachPose(kind,progress,sceneStride(width)/width,width>700?(reduced?1:desktopArrivals.phase(kind)):undefined);
+ return breachPose(kind,progress,sceneStride(width)/width,width>700?(reduced?1:scrollArrivalPhase(kind,progress)):undefined);
 }
 const foregroundWater=createForegroundWater($('#foregroundWater'),$('#nearWaterBackdrop'));
 const oceanLayers=[$('#ocean')].map(el=>{
@@ -103,13 +96,15 @@ document.addEventListener('click',e=>{const m=e.target.closest('[data-modal]');i
 $('#menuButton').addEventListener('click',()=>{$('#routeDialog').showModal();document.body.classList.add('modal-open');});
 $('#closeRoute').addEventListener('click',()=>{$('#routeDialog').close();document.body.classList.remove('modal-open');$('#menuButton').focus();});
 $('#routeDialog').addEventListener('cancel',()=>document.body.classList.remove('modal-open'));
-function start(n=0){if(started||opening)return;desktopArrivals.reset();opening=true;target=progress=n;chapter=n;positionIntroMask();$('#startButton').disabled=true;$('#intro').classList.add('opening');$('#intro').inert=true;$('#story').inert=false;updateChapter(true);setTimeout(()=>{started=true;opening=false;$('#intro').classList.add('hidden');$('#journeyUI').classList.add('visible');$('#journeyUI').inert=false;$('#headerCenter').textContent='Антарктика ближе, чем кажется';$('#story').focus({preventScroll:true});document.body.classList.remove('prestart');},reduced?30:1550);}
+function start(n=0){if(started||opening)return;opening=true;target=progress=n;chapter=n;positionIntroMask();$('#startButton').disabled=true;$('#intro').classList.add('opening');$('#intro').inert=true;$('#story').inert=false;updateChapter(true);setTimeout(()=>{started=true;opening=false;$('#intro').classList.add('hidden');$('#journeyUI').classList.add('visible');$('#journeyUI').inert=false;$('#headerCenter').textContent='Антарктика ближе, чем кажется';$('#story').focus({preventScroll:true});document.body.classList.remove('prestart');},reduced?30:1550);}
 $('#startButton').addEventListener('click',()=>start());
 $('#homeButton').addEventListener('click',()=>{if(!started)return;started=false;opening=false;document.body.classList.add('prestart');target=progress=chapter=0;$('#intro').classList.remove('opening','hidden');$('#intro').inert=false;$('#startButton').disabled=false;$('#journeyUI').classList.remove('visible');$('#journeyUI').inert=true;$('#story').inert=true;$('#headerCenter').textContent='Почувствовать, чтобы сохранить';scrollVelocity=0;updateChapter(true);positionIntroMask();$('#startButton').focus({preventScroll:true});});
 function go(n){scrollVelocity=0;target=Math.max(0,Math.min(scenes.length-1,n));if(reduced){progress=target;updateChapter();}}
 $('#nextButton').addEventListener('click',()=>go(adjacentStop(target,1)));
 $('#previousButton').addEventListener('click',()=>go(adjacentStop(target,-1)));
 addEventListener('wheel',e=>{if(!started||$('.info-dialog[open]')||$('.route-dialog[open]'))return;if(e.target.closest('.story-card')&&e.target.closest('.story-card').scrollHeight>e.target.closest('.story-card').clientHeight+3){const el=e.target.closest('.story-card');if((e.deltaY>0&&el.scrollTop+el.clientHeight<el.scrollHeight-3)||(e.deltaY<0&&el.scrollTop>2))return;}e.preventDefault();const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;const norm=delta*(e.deltaMode===1?16:e.deltaMode===2?height:1);target=Math.max(0,Math.min(LAST,travelProgress(sceneTravel(target,width)+norm*width/(width<700?720:1050),width)));scrollVelocity=0;},{passive:false});
+let seekDragging=false;$('#journeyScrubber').addEventListener('pointerdown',()=>seekDragging=true);addEventListener('pointerup',()=>seekDragging=false);addEventListener('pointercancel',()=>seekDragging=false);
+$('#journeyScrubber').addEventListener('input',e=>{scrollVelocity=0;target=travelProgress(Number(e.target.value)/1000*sceneTravel(LAST,width),width);});
 let gesture=null,zoomAmount=0;
 function beginGesture(x,y,card){scrollVelocity=0;gesture={began:performance.now(),moved:false,x,y,initial:target,card,scrolling:false,lastProgress:target,lastTime:performance.now(),velocity:0};}
 function moveGesture(x,y,event){
@@ -141,7 +136,7 @@ story.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')finishGesture(
 story.addEventListener('pointercancel',e=>{if(e.pointerType!=='touch')finishGesture();});
 addEventListener('keydown',e=>{if(!started||$('dialog[open]')||e.altKey||e.ctrlKey||e.metaKey)return;if(e.target.closest('button,a,input,textarea,select'))return;const map={ArrowRight:1,ArrowDown:1,PageDown:1,ArrowLeft:-1,ArrowUp:-1,PageUp:-1};if(map[e.key]){e.preventDefault();go(adjacentStop(target,map[e.key]));}if(e.key==='Home'){e.preventDefault();go(0);}if(e.key==='End'){e.preventDefault();go(LAST);}});
 let chapterUiKey='';
-function updateChapter(force=false){const passage=[{stop:.5,name:'Шлюпка'},{stop:1.5,name:'Альбатросы'},{stop:3.5,name:'Медузы'},{stop:4.5,name:'Крачка'}].find(s=>Math.abs(sceneTravel(progress,width)-sceneTravel(s.stop,width))<width*.36);const next=Math.max(0,Math.min(LAST,Math.round(progress)));const key=`${next}:${passage?.stop??-1}:${progress<.001}:${progress>LAST-.001}`;if(key===chapterUiKey&&!force)return;chapterUiKey=key;chapter=next;sceneEls.forEach((el,i)=>{el.classList.toggle('active',i===chapter&&!passage);el.inert=i!==chapter||!!passage;el.setAttribute('aria-hidden',String(i!==chapter||!!passage));});$$('.chapter-dot').forEach((b,i)=>i===chapter&&!passage?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current'));$('#pageCounter').innerHTML=passage?`↝ <i>${passage.name}</i>`:`${String(chapter+1).padStart(2,'0')} <i>/ ${String(scenes.length).padStart(2,'0')}</i>`;$('#previousButton').disabled=progress<.001;$('#nextButton').disabled=progress>LAST-.001;}
+function updateChapter(force=false){const passage=[{stop:.5,name:'Шлюпка'},{stop:1.5,name:'Альбатросы'},{stop:3.5,name:'Медузы'},{stop:4.5,name:'Крачка'}].find(s=>Math.abs(sceneTravel(progress,width)-sceneTravel(s.stop,width))<width*.36);const next=Math.max(0,Math.min(LAST,Math.round(progress)));const key=`${next}:${passage?.stop??-1}:${progress<.001}:${progress>LAST-.001}`;if(key===chapterUiKey&&!force)return;chapterUiKey=key;chapter=next;sceneEls.forEach((el,i)=>{if(i===chapter&&!el.classList.contains('active')){const card=$('.story-card',el);if(card)card.scrollTop=0;}el.classList.toggle('active',i===chapter&&!passage);el.inert=i!==chapter||!!passage;el.setAttribute('aria-hidden',String(i!==chapter||!!passage));});$$('.chapter-dot').forEach((b,i)=>i===chapter&&!passage?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current'));$('#pageCounter').innerHTML=passage?`↝ <i>${passage.name}</i>`:`${String(chapter+1).padStart(2,'0')} <i>/ ${String(scenes.length).padStart(2,'0')}</i>`;$('#previousButton').disabled=progress<.001;$('#nextButton').disabled=progress>LAST-.001;}
 
 const fx=$('#effectsCanvas'),ctx=fx.getContext('2d',{alpha:true}),water=$('#waterCanvas'),wctx=water.getContext('2d',{alpha:true});
 const depthRenderer=createDepthWorld($('#depthWorld'));
@@ -154,9 +149,13 @@ let shipPose=null;
 let archContacts=[];
 archWrap.insertAdjacentHTML('beforeend',`<div class="arch-contact-reflection" aria-hidden="true"><img src="${archImage.getAttribute('src')}" alt="" class="arch-reflected-image"></div>`);
 archImage.addEventListener('load',positionArchContact);
+const snow=createSnow(),middleSnow=$('#middleSnow'),mctx=middleSnow.getContext('2d');
+const shoreRenderer=createShoreRenderer($('#shoreCanvas'));
+let middleFlakes=[];
 let flakes=[],droplets=[],surfaceBursts=[],dpr=1,depthAmount=0;
-function resize(){width=innerWidth;height=innerHeight;paintBudget.reset(width<=700);dpr=Math.min(devicePixelRatio||1,1.75);[fx,water,wakeCanvas].forEach(c=>{c.width=Math.round(width*dpr);c.height=Math.round(height*dpr);});ctx.setTransform(dpr,0,0,dpr,0,0);wctx.setTransform(dpr,0,0,dpr,0,0);wakeCtx.setTransform(dpr,0,0,dpr,0,0);flakes=Array.from({length:width<700?37:115},()=>({x:Math.random()*width,y:Math.random()*height,r:(.5+Math.random()*2.0)*(width>700?1.8:1),z:.3+Math.random()*.9,phase:Math.random()*7}));positionBreachLayers();positionArchContact();depthRenderer.paint(progress,elapsed,width,height,dpr);}
-resize();addEventListener('resize',()=>{resize();positionIntroMask();});
+let viewportKey='';
+function resize(){const key=[innerWidth,innerHeight,devicePixelRatio].join(':');if(key===viewportKey)return;viewportKey=key;width=innerWidth;height=innerHeight;paintBudget.reset(width<=700);dpr=Math.min(devicePixelRatio||1,width<=700?1.35:1.75);[fx,water,wakeCanvas,middleSnow].forEach(c=>{c.width=Math.round(width*dpr);c.height=Math.round(height*dpr);});ctx.setTransform(dpr,0,0,dpr,0,0);wctx.setTransform(dpr,0,0,dpr,0,0);wakeCtx.setTransform(dpr,0,0,dpr,0,0);mctx.setTransform(dpr,0,0,dpr,0,0);flakes=Array.from({length:width<700?37:115},()=>({x:Math.random()*width,y:Math.random()*height,r:(.5+Math.random()*2.0)*(width>700?1.8:1),z:.3+Math.random()*.9,phase:Math.random()*7}));middleFlakes=flakes.slice(0,width<=700?26:76).map((f,i)=>({...f,x:(i*137.7)%width,y:(i*83.1)%height}));positionBreachLayers();positionArchContact();depthRenderer.paint(progress,elapsed,width,height,dpr);}
+resize();let viewportTimer;const scheduleViewport=()=>{clearTimeout(viewportTimer);viewportTimer=setTimeout(()=>{resize();positionIntroMask();},140);};addEventListener('resize',scheduleViewport);window.visualViewport?.addEventListener('resize',scheduleViewport);for(const c of [fx,water,wakeCanvas,middleSnow])c.addEventListener('contextrestored',()=>{viewportKey='';depthRenderer.reset();shoreRenderer.reset();resize();});
 function splashAt(x,y,power=1,kind='breach'){
   if(reduced||paused)return;
   soundscape.splash(power);
@@ -167,19 +166,20 @@ function splashAt(x,y,power=1,kind='breach'){
   if(droplets.length>130)droplets=droplets.slice(-130);
 }
 $('#snowToggle').addEventListener('click',()=>{snowOn=!snowOn;$('#snowToggle').setAttribute('aria-pressed',snowOn);$('#snowToggle').setAttribute('aria-label',snowOn?'Выключить снег':'Включить снег');$('#snowToggle').title=snowOn?'Выключить снег':'Включить снег';});
-$('#motionToggle').addEventListener('click',()=>{paused=!paused;document.body.classList.toggle('motion-paused',paused);$('#motionToggle').setAttribute('aria-pressed',paused);$('#motionToggle').setAttribute('aria-label',paused?'Продолжить анимации':'Приостановить анимации');$('#motionIcon').textContent=paused?'▷':'Ⅱ';soundscape.suspend(paused||document.hidden);});
+$('#motionToggle').addEventListener('click',()=>{paused=!paused;document.body.classList.toggle('motion-paused',paused);$('#motionToggle').setAttribute('aria-pressed',paused);$('#motionToggle').setAttribute('aria-label',paused?'Продолжить анимации':'Приостановить анимации');$('#motionIcon').classList.toggle('is-play',paused);soundscape.suspend(paused||document.hidden);});
 reducedQuery.addEventListener('change',e=>{reduced=e.matches;document.body.classList.toggle('reduced-motion',reduced);});
 function drawBird(x,y,size,phase,opacity){ctx.save();ctx.translate(x,y);ctx.strokeStyle=`rgba(249,254,255,${opacity})`;ctx.lineWidth=size*.1;ctx.lineCap='round';const flap=Math.sin(phase)*size*.4;ctx.beginPath();ctx.moveTo(-size,flap);ctx.quadraticCurveTo(-size*.4,-size*.15,0,0);ctx.quadraticCurveTo(size*.4,-size*.15,size,flap);ctx.stroke();ctx.restore();}
 function paint(dt){
  ctx.clearRect(0,0,width,height);
  const travel=sceneTravel(progress,width),depth=depthPose(progress);depthAmount=depth.amount;
  depthRenderer.paint(progress,elapsed,width,height,dpr);
- if(!reduced&&snowOn){for(const f of flakes){
-  if(!paused){f.y+=dt*(5+f.z*11);f.x+=dt*(1+f.z*2);if(f.y>height+5)f.y=-5;}
-  const x=snowScreenX(f.x,travel,f.z,width)+Math.sin(elapsed*.2+f.phase)*5;
-  ctx.beginPath();ctx.fillStyle=`rgba(255,255,255,${(width>700?.28+f.z*.38:.16+f.z*.31)*(1-depth.amount)})`;
-  ctx.arc(x,f.y,f.r,0,Math.PI*2);ctx.fill();
- }}
+ mctx.clearRect(0,0,width,height);
+ if(!reduced&&snowOn){
+  for(const list of [flakes,middleFlakes])for(const f of list)if(!paused){f.y+=dt*(5+f.z*11);f.x+=dt*(1+f.z*2);if(f.y>height+12)f.y=-12;}
+  snow.paint(ctx,flakes,travel,width,height,progress,elapsed,depth.amount,'near');
+  snow.paint(mctx,middleFlakes,travel,width,height,progress,elapsed,depth.amount,'middle');
+ }
+ shoreRenderer.paint(progress,width,height,dpr);
  if(depth.amount>.01){
   ctx.save();ctx.globalAlpha=depth.amount;
   ctx.beginPath();ctx.moveTo(0,height);for(let x=0;x<=width+16;x+=16)ctx.lineTo(x,surfaceY(x,width,height,progress,elapsed));ctx.lineTo(width,height);ctx.closePath();ctx.clip();
@@ -191,7 +191,7 @@ function paint(dt){
  livingOcean.paint(elapsed,progress,reduced);
  drawBreachFoam();
  drawArchWaterlap();
- pugh.paint(progress,width,reduced,elapsed,foamTextures.whale,splashAt,started&&!paused&&!reduced,width>700?desktopArrivals.phase('swimmer'):undefined);
+ pugh.paint(progress,width,reduced,elapsed,foamTextures.whale,splashAt,started&&!paused&&!reduced,width>700?scrollArrivalPhase('swimmer',progress):undefined);
  for(let i=surfaceBursts.length-1;i>=0;i--){
   const b=surfaceBursts[i];if(!paused)b.age+=dt;
   if(b.age>b.life){surfaceBursts.splice(i,1);continue;}
@@ -432,7 +432,7 @@ function updateSceneMotion(){
     layer.previousPhase=pose.phase;
   }
   const p=landingPose(progress-SHIP+6,width,width<=700),landing=$('#landingLayer');
-  landing.style.opacity=p.opacity;landing.style.visibility=p.opacity>0?'visible':'hidden';
+  landing.style.opacity='1';landing.style.visibility=progress>8.5?'visible':'hidden';
   landing.dataset.docked=String(p.docked);
   stationLights.paint(progress-SHIP);
   shipPose=shipApproachPose(progress,width,height,archImage.getBoundingClientRect(),shipImage.naturalWidth?shipImage.naturalHeight/shipImage.naturalWidth:.5);
@@ -456,23 +456,32 @@ function updateEnvironment(dt){
  document.body.classList.toggle('camera-close',zoomAmount>.2);
  document.body.classList.toggle('underwater',p.amount>.65);
  document.body.classList.toggle('evening',dusk>.25);
- $('#foregroundWater').style.opacity=surfaceForegroundOpacity(p.amount);
- $('#nearWaterBackdrop').style.opacity=surfaceForegroundOpacity(p.amount);
+ for(const water of [$('#foregroundWater'),$('#nearWaterBackdrop')]){
+  water.style.opacity='1';water.style.display=surfaceForegroundOpacity(p.amount)?'':'none';water.style.visibility=surfaceForegroundOpacity(p.amount)?'visible':'hidden';
+  if(p.amount>0&&p.amount<1){
+   const r=water.getBoundingClientRect(),points=['0px 0px',`${r.width}px 0px`];
+   for(let n=24;n>=0;n--){const x=r.width*n/24;points.push(`${x}px ${clamp(surfaceY(r.left+x,width,height,progress,elapsed)-r.top,0,r.height)}px`);}
+   water.style.clipPath=`polygon(${points.join(',')})`;
+  }else water.style.clipPath='none';
+ }
+
  document.body.classList.toggle('approaching-land',progress>SHIP-.85);
  for(const [i,el] of sceneEls.entries()){
   const a=$('.animal-wrap',el);if(!a)continue;
   const distance=Math.abs(sceneTravel(i,width)-sceneTravel(progress,width))/sceneStride(width);
   a.style.opacity=encounterOpacity(scenes[i].animal,distance,p.amount,scenes[i].underwater);
-  if(p.amount>.001&&p.amount<.999&&Math.abs(i-progress)<1.4){
-   const r=a.getBoundingClientRect(),underwater=scenes[i].underwater,edge=underwater?height*3:-height*3;
-   const points=[`${-width*3}px ${edge}px`];
-   for(let x=-width;x<=width*2;x+=width/12)points.push(`${x-r.left}px ${surfaceY(x,width,height,progress,elapsed)-r.top}px`);
-   points.push(`${width*3}px ${edge}px`);a.style.clipPath=`polygon(${points.join(',')})`;
+  const x=sceneTravel(i,width)-sceneTravel(progress,width);
+  el.style.visibility=Math.abs(x)<width*1.8?'visible':'hidden';
+  if(p.amount>0&&p.amount<1&&Math.abs(i-progress)<1.4){
+   const r=a.getBoundingClientRect(),underwater=scenes[i].underwater,edge=underwater?r.height:0;
+   const points=[`0px ${edge}px`,` ${r.width}px ${edge}px`];
+   for(let n=16;n>=0;n--){const lx=r.width*n/16;points.push(`${lx}px ${clamp(surfaceY(r.left+lx,width,height,progress,elapsed)-r.top,0,r.height)}px`);}
+   a.style.clipPath=`polygon(${points.join(',')})`;
   }else a.style.clipPath='none';
  }
  // Keep the station in the distance while the final researchers enter foreground.
  const finalApproach=smooth(progress-(SHIP+1));
- const ground=$('#finalGround');ground.style.transform=`translate3d(${shoreGroundX(progress,width)}px,0,0)`;
+
  document.body.classList.toggle('on-land',progress>=SHIP+.92);
  $('#landingStation').style.scale=1-finalApproach*.22;
  $('#landingStation').style.transformOrigin='50% 100%';
@@ -482,7 +491,7 @@ function updateEnvironment(dt){
  if(width>700){
   for(const item of arrivalScenes){
    const threshold=item.kind==='orca'?.66:item.kind==='whale'?.32:.22;
-   if(desktopArrivals.phase(item.kind)<threshold)$('.species-label',sceneEls[item.index]).style.visibility='hidden';
+   if(scrollArrivalPhase(item.kind,progress)<threshold)$('.species-label',sceneEls[item.index]).style.visibility='hidden';
   }
  }
  soundscape.setScene(progress>.36&&progress<.64?'tourists':progress>1.2&&progress<1.8?'albatross':progress>3.22&&progress<3.78?'jellyfish':progress>4.22&&progress<4.78?'tern':scenes[chapter].animal==='leopard'?'elephant':scenes[chapter].animal,p.amount);
@@ -494,17 +503,17 @@ function animate(time){
   target=clamp(target+scrollVelocity*dt,0,LAST);scrollVelocity*=Math.exp(-dt*5.5);
   if(target===0||target===LAST)scrollVelocity=0;
  }
- progress+=(target-progress)*(reduced?1:1-Math.exp(-dt*(gesture?35:14)));
+ progress=easedCamera(progress,target,dt,reduced,!!gesture);
  if(Math.abs(target-progress)<.0001)progress=target;
- const travel=sceneTravel(progress,width);track.style.transform=`translate3d(${-travel}px,0,0)`;
+ const travel=sceneTravel(progress,width);track.style.transform=`translateX(${-travel}px)`;
  $('#sky').style.backgroundPositionX=`${-travel*.11}px`;
  const panoramaHeight=height*(width<=700?.6:1),iceRange=Math.max(0,8520/1080*panoramaHeight-width);
  const distantRange=Math.max(0,8520/1080*height*(width<=700?.3:.42)-width*1.2);
  $('#distantIce').style.backgroundPositionX=`${-progress/LAST*distantRange}px`;
  $('#icebergs').style.backgroundPositionX=`${-progress/LAST*iceRange}px`;
- positionOcean(travel);$('#progressBar').style.width=`${progress/LAST*100}%`;
- updateChapter();updateDesktopArrivals(frameSeconds);updateSceneMotion();updateEnvironment(dt);
- const moving=!!gesture?.moved||Math.abs(target-progress)>.0001||Math.abs(scrollVelocity)>.004||(width>700&&desktopArrivals.running);
+ positionOcean(travel);$('#progressBar').style.width=`${progress/LAST*100}%`;const seek=travel/sceneTravel(LAST,width);$('#journeyScrubber').style.setProperty('--seek',`${seek*100}%`);if(!seekDragging)$('#journeyScrubber').value=seek*1000;$('#journeyScrubber').setAttribute('aria-valuetext',`${chapter+1} из ${scenes.length}`);
+ updateChapter();updateSceneMotion();updateEnvironment(dt);
+ const moving=!!gesture?.moved||Math.abs(target-progress)>.0001||Math.abs(scrollVelocity)>.004;
  const rate=paintBudget.rate(moving),deadline=paintDeadline(lastPaint,time,rate);
  if(deadline!==null){
   const began=performance.now();paint(Math.min(.06,(time-lastPaintAt)/1000));
@@ -517,4 +526,6 @@ document.addEventListener('visibilitychange',()=>{lastTime=performance.now();las
 $('#soundToggle').addEventListener('click',async()=>{try{const enabled=await soundscape.setEnabled(!soundscape.enabled);soundscape.suspend(paused||document.hidden);$('#soundToggle').setAttribute('aria-pressed',enabled);$('#soundToggle').setAttribute('aria-label',enabled?'Выключить звук путешествия':'Включить звук путешествия');$('#soundToggle').title=enabled?'Выключить звук путешествия':'Включить звук путешествия';}catch{toast('Звук недоступен в этом браузере.');}});
 let toastTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
-$('#shareButton').addEventListener('click',async()=>{const data={title:'Help Antarctica — почувствовать, чтобы сохранить',text:'Путешествие в мир Антарктики. Над океаном, подо льдом и на берегу.',url:location.origin};try{if(navigator.share){await navigator.share(data);return;}if(navigator.clipboard&&isSecureContext){await navigator.clipboard.writeText(data.url);toast('Ссылка на путешествие скопирована.');return;}openModal('about',$('#shareButton'));}catch(e){if(e.name!=='AbortError')toast('Не удалось поделиться ссылкой. Скопируйте адрес сайта из браузера.');}});
+$('#shareButton').addEventListener('click',async()=>{const data={title:'Help Antarctica — почувствовать, чтобы сохранить',text:'Путешествие в мир Антарктики. Над океаном, подо льдом и на берегу.',url:location.origin+location.pathname};try{if(navigator.share){await navigator.share(data);return;}if(navigator.clipboard&&isSecureContext){await navigator.clipboard.writeText(data.url);toast('Ссылка на путешествие скопирована.');return;}openModal('about',$('#shareButton'));}catch(e){if(e.name!=='AbortError')toast('Не удалось поделиться ссылкой. Скопируйте адрес сайта из браузера.');}});
+
+addEventListener('pageshow',()=>{depthRenderer.reset();shoreRenderer.reset();resize();});

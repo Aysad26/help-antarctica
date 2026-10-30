@@ -1,4 +1,4 @@
-import {clamp,smooth} from './motion.mjs?v=31';
+import {clamp,smooth} from './motion.mjs?v=32';
 
 // A brief shallow plunge. The bird never appears in the air later in the trip.
 export function shallowBirdPose(progress,width,height){

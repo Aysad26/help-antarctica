@@ -1,0 +1,33 @@
+/* Keep the horizontal world out of a single enormous composited texture.
+   Each photographic chapter is painted and clipped in its own viewport. */
+.scene-track{will-change:auto;transform-style:flat}
+.scene{contain:layout paint;isolation:isolate}
+.animal-wrap{will-change:auto;transition:none;opacity:1}
+.scene .story-card,.scene.active .story-card{opacity:1;transition:none;transform:translateY(-45%);backdrop-filter:none;-webkit-backdrop-filter:none;overflow-anchor:none}
+#story,.landing-layer,#shipApproach{backface-visibility:visible}
+#shoreCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
+#middleSnow{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.near-water-plane .near-water-tile{will-change:auto}
+.albatross-passage{opacity:1;visibility:hidden}
+.pause-glyph{position:relative;display:block;width:17px;height:20px;font-size:0}
+.pause-glyph:before,.pause-glyph:after{content:'';position:absolute;top:2px;bottom:2px;width:3px;background:currentColor;border-radius:.5px}
+.pause-glyph:before{left:3px}.pause-glyph:after{right:3px}
+.pause-glyph.is-play:before{left:4px;top:3px;bottom:auto;width:0;height:0;background:none;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:11px solid currentColor;border-radius:0}
+.pause-glyph.is-play:after{display:none}
+#journeyScrubber{display:none}
+@media(min-width:701px){
+ .chapter-nav{display:none}
+ #journeyScrubber{display:block;appearance:none;-webkit-appearance:none;width:clamp(220px,32vw,620px);height:30px;background:transparent;cursor:pointer;touch-action:none;--seek:0%;outline-offset:5px}
+ #journeyScrubber::-webkit-slider-runnable-track{height:2px;background:linear-gradient(to right,#eaf8ff var(--seek),#b3d3e370 var(--seek));border-radius:2px}
+ #journeyScrubber::-moz-range-track{height:2px;background:#b3d3e370;border-radius:2px}
+ #journeyScrubber::-moz-range-progress{height:2px;background:#eaf8ff}
+ #journeyScrubber::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;margin-top:-5px;border:2px solid #fff;background:#527b91;border-radius:50%;box-shadow:0 0 0 1px #183f5566,0 1px 5px #14354b55}
+ #journeyScrubber::-moz-range-thumb{width:9px;height:9px;border:2px solid #fff;background:#527b91;border-radius:50%}
+ .progress-track{display:none}
+ body.on-land #journeyScrubber::-webkit-slider-runnable-track{background:linear-gradient(to right,#244e65 var(--seek),#355d7066 var(--seek))}
+}
+@media(max-width:700px){
+ .scene .story-card,.scene.active .story-card{transform:none;top:98px;max-height:calc(49svh - 48px);scroll-padding-top:18px}
+ .scene .animal-image,.tourist-rig,.albatross-flight{will-change:auto}
+ .scene{overflow:hidden}
+}

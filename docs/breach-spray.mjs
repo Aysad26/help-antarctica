@@ -1,4 +1,4 @@
-import {clamp,smooth} from './motion.mjs?v=31';
+import {clamp,smooth} from './motion.mjs?v=32';
 
 export const sprayThresholds=kind=>kind==='whale'?[.22,.29,.36,.43,.51,.59,.68]:[.38,.44,.50,.56,.63,.70];
 export function makeSprayFragment(kind,index,contact,spread,travel,time){

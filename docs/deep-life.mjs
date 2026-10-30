@@ -1,5 +1,5 @@
-import {createShallowBird} from './near-surface.mjs?v=31';
-import {clamp,sceneTravel} from './motion.mjs?v=31';
+import {createShallowBird} from './near-surface.mjs?v=32';
+import {clamp,sceneTravel} from './motion.mjs?v=32';
 export function leopardSwimPose(progress,width,height){
  const mobile=width<=700,q=clamp((progress-4)*.82+(mobile?.145:.11),-.7,.7);
  // Screen-space arc, not a second horizontal camera offset: the nose enters
@@ -23,14 +23,14 @@ export function fishPose(index,progress,time,width,height){
 // A second, closer school occupies the lower water between the leopard and
 // the shallow tern dive. The camera reveals it through the frame edges.
 export function nearFishPose(index,progress,time,width,height){
- if(width<=700)return null;
+ const mobile=width<=700;
  const a=index*2.399963+(progress-4.38)*1.25+time*.018;
  const r=.46+(index%17)/30,rx=width*.43*r,ry=height*.25*r;
  const travel=(sceneTravel(4.38,width)-sceneTravel(progress,width))*.70;
  return {x:width*.50+travel+Math.cos(a)*rx,y:height*.965+Math.sin(a)*ry,
   // The source fish points left; add pi to align its nose with the tangent.
   angle:Math.atan2(ry*Math.cos(a),-rx*Math.sin(a))+Math.PI,
-  size:Math.min(48,Math.max(24,width*.018))*(.8+(index%7)*.065),
+  size:(mobile?Math.max(10,width*.033):Math.min(48,Math.max(24,width*.018)))*(.8+(index%7)*.065),
   alpha:.38+(Math.sin(a)+1)*.10};
 }
 export function createDeepLife(ctx,onReady=()=>{}){
@@ -52,7 +52,7 @@ export function createDeepLife(ctx,onReady=()=>{}){
    const f=fishPose(i,progress,time,width,height);ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.angle);ctx.globalAlpha=f.alpha;
    const h=f.size*photos.fish.naturalHeight/photos.fish.naturalWidth;ctx.drawImage(photos.fish,-f.size/2,-h/2,f.size,h);ctx.restore();
   }
-  if(!mobile&&ready('fish')&&progress>3.8&&progress<4.95)for(let i=0;i<112;i++){
+  if(ready('fish')&&progress>3.8&&progress<4.95)for(let i=0;i<112;i++){
    const f=nearFishPose(i,progress,time,width,height),h=f.size*photos.fish.naturalHeight/photos.fish.naturalWidth;
    if(f.x+f.size<0||f.x-f.size>width||f.y-h>height)continue;
    ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.angle);ctx.globalAlpha=f.alpha;

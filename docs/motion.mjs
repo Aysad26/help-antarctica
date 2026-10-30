@@ -70,7 +70,7 @@ export function landingPose(progress, viewportWidth, mobile) {
   const dockTip=shoreStart-.115;
   const bow=lerp(.57,dockTip+.006,arrive);
   return {
-    opacity:smooth((progress-5.15)/.30),
+    opacity:1,
     shipX:(bow-(mobile?1.55:.74)-camera)*viewportWidth,
     shoreX:(shoreStart-camera)*viewportWidth,
     stationX:(shoreStart+(mobile?-.04:.08)-camera)*viewportWidth,

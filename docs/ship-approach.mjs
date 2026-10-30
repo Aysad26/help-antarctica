@@ -1,4 +1,4 @@
-import {clamp,lerp,smooth,landingPose} from './motion.mjs?v=31';
+import {clamp,lerp,smooth,landingPose} from './motion.mjs?v=32';
 
 // The ship is registered to the opening in the actual, responsive arch image.
 // Its path lives in the same world coordinates as the pier, so scrolling back
