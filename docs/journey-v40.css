@@ -1,0 +1,11 @@
+/* The viewport clips the journey; a chapter boundary must not cut an animal
+   while its photograph crosses between adjacent chapters. Keep isolation, but
+   drop paint containment only for the oversized surface encounters. */
+.scene.orca-scene,.scene.whale-scene,.scene.weddell-scene,.scene.leopard-scene{contain:layout;overflow:visible}
+
+/* Birds share the story's stacking context: their photographs pass behind the
+   chapter track, while the small information button remains interactive. */
+.scene-track{position:relative;z-index:1}
+.albatross-passage{z-index:auto}
+.albatross-flight{z-index:0}
+.albatross-passage .species-label{z-index:2}

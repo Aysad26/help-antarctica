@@ -15,7 +15,7 @@ import {paintContactReflection} from './contact-water.mjs?v=32';
 import {createWildlifeLabels} from './wildlife-labels.mjs?v=32';
 import {createPaintBudget,paintDeadline} from './rendering.mjs?v=32';
 import {depthPose,encounterOpacity,snowScreenX,holdAmount,surfaceY,surfaceBoundary,surfaceForegroundOpacity} from './expedition-motion.mjs?v=32';
-import {scenes,modals} from './story.mjs?v=37';
+import {scenes,modals} from './story.mjs?v=40';
 import {createSoundscape} from './soundscape.mjs?v=32';
 import {clamp,lerp,smooth,breachPose,landingPose,introMaskGeometry,sceneStride,sceneTravel,travelProgress,oceanTiles,adjacentStop,breachFoamGeometry} from './motion.mjs?v=32';
 'use strict';

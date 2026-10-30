@@ -44,7 +44,7 @@ export const scenes=[
   "cta": "Об охране кормовых районов",
   "modal": "whale",
   "animal": "whale",
-  "image": "whale-v17.webp",
+  "image": "whale-v40.webp",
   "speciesModal": "whale",
   "note": "Горбатый кит · прыжок над водой",
   "splash": "whale-water.webp",
