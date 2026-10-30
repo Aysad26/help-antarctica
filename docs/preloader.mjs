@@ -1,4 +1,4 @@
-import {imageAssets,fontAssets} from './asset-manifest.mjs?v=38';
+import {imageAssets,fontAssets} from './asset-manifest.mjs?v=39';
 
 // No fixed-duration escape: the mark remains until every active image has
 // finished loading/decoding and the used webfonts are ready. Failed requests

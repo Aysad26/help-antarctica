@@ -15,4 +15,4 @@ const rendererImages=[
 export const imageAssets=[...new Set([
  ...scenes.map(s=>s.image),...Object.values(modals).map(m=>m.image),...rendererImages
 ].filter(Boolean))];
-export const fontAssets=['700 16px LINESeedJP','600 16px Moderustic','600 16px Inter'];
+export const fontAssets=['600 16px Moderustic','600 16px Inter'];
