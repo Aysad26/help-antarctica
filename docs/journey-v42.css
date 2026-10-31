@@ -1,0 +1,8 @@
+/* Foot strips inherit the scene's visibility and waterline masking. */
+.floe-water-contact{position:absolute;pointer-events:none;z-index:3;max-width:none}
+.floe-contact-ready>.animal-image{mask-image:var(--floe-mask);-webkit-mask-image:var(--floe-mask);mask-size:100% 100%;-webkit-mask-size:100% 100%;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat}
+.floe-contact-ready>.species-label{z-index:5}
+/* Broad baked spray belongs to the whale sprite; no independent springy layer. */
+.whale-wrap .breach-orbit{width:93.17%;height:62.11%;top:9.70%;left:5.78%}
+.near-water-plane[data-water="open"].water-open-ready .near-water-tile{background-image:url('assets/foreground-open-v42.webp')}
+.near-water-plane[data-water="ice"].water-ice-ready .near-water-tile{background-image:url('assets/foreground-ice-v42.webp')}

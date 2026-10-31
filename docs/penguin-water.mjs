@@ -1,3 +1,4 @@
+import {paintFoamEdge} from './surface-contact.mjs?v=44';
 // Keep the original birds and floe, discarding the old rectangular water foot.
 // Their new reflection is compressed and broken by the existing sea's ripples.
 export function floeWaterY(u,height){
@@ -50,6 +51,8 @@ export function createPenguinWater(wrap){
    ctx.drawImage(reflected,0,y,w,step,dx,y,w,step);
   }
   ctx.drawImage(art,0,0);
+  const edge=Array.from({length:170},(_,i)=>{const u=.015+.97*i/169;return {x:u*w,y:floeWaterY(u,h)};});
+  paintFoamEdge(ctx,edge,t,1);
   // A narrow wet seam and discontinuous pale waterlap, with no bright halo.
   for(let band=0;band<2;band++)for(let segment=0;segment<13;segment++){
    const a=.015+segment*.074,b=Math.min(.983,a+.039+(segment%3)*.007);

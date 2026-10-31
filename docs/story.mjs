@@ -44,7 +44,7 @@ export const scenes=[
   "cta": "Об охране кормовых районов",
   "modal": "whale",
   "animal": "whale",
-  "image": "whale-v40.webp",
+  "image": "whale-v42.webp",
   "speciesModal": "whale",
   "note": "Горбатый кит · прыжок над водой",
   "splash": "whale-water.webp",
@@ -95,7 +95,7 @@ export const scenes=[
   "cta": "Как изучают ледовую среду",
   "modal": "weddell",
   "animal": "weddell",
-  "image": "weddell-v5.webp",
+  "image": "weddell-v44.webp",
   "speciesModal": "weddell",
   "note": "Тюлень Уэдделла · у дыхательной лунки",
   "mobileText": "Прибрежный лёд нужен тюленям Уэдделла для размножения и отдыха. Многолетние наблюдения показывают, как ледовые условия влияют на их жизнь."
@@ -143,7 +143,7 @@ export const scenes=[
   "cta": "Как охраняют колонии",
   "modal": "birds",
   "animal": "cormorant",
-  "image": "cormorant-v11.webp",
+  "image": "cormorant-v44.webp",
   "speciesModal": "birds",
   "note": "Антарктический баклан · между нырками",
   "mobileText": "Бакланам нужны кормовые участки в море и места гнездования на берегу. Правила посещения помогают уменьшать беспокойство птиц."

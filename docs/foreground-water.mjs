@@ -16,7 +16,7 @@ export function createForegroundWater(...roots){
  // Each photograph decodes before its first reveal. During loading the
  // original middle ocean remains visible instead of an empty colour patch.
  ['open','ice'].forEach(name=>{
-  const image=new Image();image.src=`assets/foreground-${name}-v24.webp`;
+  const image=new Image();image.src=`assets/foreground-${name}-v42.webp`;
   image.decode().then(()=>{roots.forEach(root=>root.classList.add(`water-${name}-ready`));}).catch(()=>{});
  });
  return {paint(travel,width,height,progress){

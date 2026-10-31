@@ -2,22 +2,26 @@ import {createSnow} from './snow.mjs?v=32';
 import {createShoreRenderer} from './shore-renderer.mjs?v=32';
 import {createPassages} from './passages.mjs?v=32';
 import {shipApproachPose,shipContactAt} from './ship-approach.mjs?v=32';
-import {createPenguinWater} from './penguin-water.mjs?v=32';
-import {createForegroundWater} from './foreground-water.mjs?v=32';
+import {createPenguinWater} from './penguin-water.mjs?v=44';
+import {createForegroundWater} from './foreground-water.mjs?v=42';
+import {createFloeContacts,paintFoamEdge} from './surface-contact.mjs?v=44';
+import {breachArtGeometry} from './breach-art.mjs?v=42';
 import {scrollArrivalPhase,easedCamera} from './arrival-motion.mjs?v=32';
-import {sprayThresholds,makeSprayFragment,sprayFragmentPose} from './breach-spray.mjs?v=32';
+import {sprayThresholds} from './breach-spray.mjs?v=32';
+import {staticSprayGeometry} from './static-spray.mjs?v=43';
+import {paintBreachRim} from './breach-rim.mjs?v=45';
 import {createAlbatross} from './albatross.mjs?v=32';
 import {createDepthWorld} from './ocean-depth.mjs?v=32';
-import {createPugh} from './pugh.mjs?v=32';
+import {createPugh} from './pugh.mjs?v=43';
 import {createStationLights} from './station-lights.mjs?v=32';
 import {createLivingOcean} from './living-ocean.mjs?v=41';
 import {paintContactReflection} from './contact-water.mjs?v=32';
 import {createWildlifeLabels} from './wildlife-labels.mjs?v=32';
 import {createPaintBudget,paintDeadline} from './rendering.mjs?v=32';
 import {depthPose,encounterOpacity,snowScreenX,holdAmount,surfaceY,surfaceBoundary,surfaceForegroundOpacity} from './expedition-motion.mjs?v=32';
-import {scenes,modals} from './story.mjs?v=40';
+import {scenes,modals} from './story.mjs?v=44';
 import {createSoundscape} from './soundscape.mjs?v=32';
-import {clamp,lerp,smooth,breachPose,landingPose,introMaskGeometry,sceneStride,sceneTravel,travelProgress,oceanTiles,adjacentStop,breachFoamGeometry} from './motion.mjs?v=32';
+import {clamp,lerp,smooth,breachPose,landingPose,introMaskGeometry,sceneStride,sceneTravel,travelProgress,oceanTiles,adjacentStop} from './motion.mjs?v=32';
 'use strict';
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
@@ -144,6 +148,7 @@ const wakeCanvas=$('#shipWakeCanvas'),wakeCtx=wakeCanvas.getContext('2d',{alpha:
 const archImage=$('.icearch-wrap .animal-image'),archIndex=scenes.findIndex(s=>s.animal==='icearch');
 const archWrap=archImage.parentElement;
 const penguinWater=createPenguinWater($('.penguins-wrap'));
+const floeContacts=createFloeContacts(['weddell','leopard','cormorant'].map(kind=>({image:$('.'+kind+'-wrap>.animal-image'),index:scenes.findIndex(s=>s.animal===kind)})));
 const shipApproach=$('#shipApproach'),shipElement=$('#landingShip'),shipImage=$('img',shipElement);
 let shipPose=null;
 let archContacts=[];
@@ -189,6 +194,7 @@ function paint(dt){
  drawSurfaceBoundary(depth);
  if(progress<.9){penguinWater.resize();penguinWater.paint(elapsed,reduced);}
  livingOcean.paint(elapsed,progress,reduced);
+ floeContacts.paint(progress,elapsed,reduced);
  drawBreachFoam();
  drawArchWaterlap();
  pugh.paint(progress,width,reduced,elapsed,foamTextures.whale,splashAt,started&&!paused&&!reduced,width>700?scrollArrivalPhase('swimmer',progress):undefined);
@@ -230,6 +236,8 @@ function drawShipWake(){
  const p=shipPose;
  if(!started||!p?.visible||!shipImage.complete||!shipImage.naturalWidth)return;
  const strength=1-.72*p.arrival;
+ const rim=Array.from({length:71},(_,i)=>shipContactAt(p,.03+.86*i/70));
+ paintFoamEdge(wakeCtx,rim,reduced?0:elapsed,.65);
  // Local reflection strips follow the perspective waterline, never a shadow oval.
  for(let i=0;i<14;i++){
   const u=.03+i*.86/14,next=u+.86/14,c=shipContactAt(p,(u+next)*.5);
@@ -271,20 +279,7 @@ const breachLayers=[1,2].map(index=>({index,kind:scenes[index].animal,window:$('
 const silhouette=document.createElement('canvas');silhouette.width=silhouette.height=256;
 const sctx=silhouette.getContext('2d',{willReadFrequently:true});
 const foamTextures={};
-const sprayPieceCache=new WeakMap();
-function softSprayPiece(photo,sx,sy,sw,sh){
- let pieces=sprayPieceCache.get(photo);if(!pieces){pieces=new Map();sprayPieceCache.set(photo,pieces);}
- const key=[sx,sy,sw,sh].join(':');if(pieces.has(key))return pieces.get(key);
- const cropWidth=photo.width*sw,cropHeight=photo.height*sh,canvas=document.createElement('canvas');
- canvas.width=Math.min(384,Math.round(cropWidth));canvas.height=Math.max(1,Math.round(canvas.width*cropHeight/cropWidth));
- const g=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
- g.drawImage(photo,photo.width*sx,photo.height*sy,cropWidth,cropHeight,0,0,w,h);
- g.globalCompositeOperation='destination-in';
- const across=g.createLinearGradient(0,0,w,0);across.addColorStop(0,'#fff0');across.addColorStop(.17,'#fff');across.addColorStop(.83,'#fff');across.addColorStop(1,'#fff0');
- g.fillStyle=across;g.fillRect(0,0,w,h);
- const down=g.createLinearGradient(0,0,0,h);down.addColorStop(0,'#fff0');down.addColorStop(.12,'#fff');down.addColorStop(.72,'#fff');down.addColorStop(1,'#fff0');
- g.fillStyle=down;g.fillRect(0,0,w,h);pieces.set(key,canvas);return canvas;
-}
+const orcaStaticSpray=new Image();orcaStaticSpray.src=ASSET+'orca-static-spray-v43.webp';
 for(const kind of ['orca','whale','spray']){
  const photo=new Image();photo.src=ASSET+(kind==='spray'?'breach-spray-v16.webp':kind==='orca'?'orca-water-2.webp':'whale-water.webp');
  photo.onload=()=>{
@@ -299,9 +294,9 @@ for(const kind of ['orca','whale','spray']){
 function breachContact(layer,pose,angle){
  const image=layer.orbit.querySelector('img'),box=layer.window.getBoundingClientRect();
  if(image.complete&&image.naturalWidth&&Math.abs((layer.contactAngle??999)-angle)>.15){
-  const size=256,scale=layer.kind==='whale'?.9:1,top=layer.kind==='whale'?.1:.3;
-  const ox=pose.pivotX*size*scale,oy=top*size+pose.pivotY*size*scale;
-  sctx.clearRect(0,0,size,size);sctx.save();sctx.translate(ox,oy);sctx.rotate(angle*Math.PI/180);sctx.translate(-ox,-oy);sctx.drawImage(image,0,top*size,size*scale,size*scale);sctx.restore();
+  const size=256,art=breachArtGeometry(layer.kind,pose);
+  const ox=art.pivotX*size,oy=art.pivotY*size;
+  sctx.clearRect(0,0,size,size);sctx.save();sctx.translate(ox,oy);sctx.rotate(angle*Math.PI/180);sctx.translate(-ox,-oy);sctx.drawImage(image,art.left*size,art.top*size,art.width*size,art.height*size);sctx.restore();
   const data=sctx.getImageData(0,Math.floor(pose.waterline*size)-2,size,1).data;
   // Alpha-weighted contact does not jump between the body and a flipper when
   // the longest opaque interval changes by a single raster sample.
@@ -330,36 +325,25 @@ function drawBreachFoam(){
   if(!photo||pose.phase<.15||Math.abs(progress-layer.index)>1)continue;
   const c=breachContact(layer,pose,reduced?breachPose(layer.kind,layer.index).angle:pose.angle);
   const box=layer.window.getBoundingClientRect();
-  const {width:w}=breachFoamGeometry(layer.kind,c.width,width,box.width);
   const visible=1-smooth((Math.abs(progress-layer.index)-.55)/.4);
   if(layer.reflection){
    paintContactReflection(ctx,layer.reflection,box,c.y,.105*(1-depthAmount)*visible*smooth((pose.phase-.2)/.5),elapsed);
   }
-  ctx.save();ctx.globalAlpha=smooth((pose.phase-.15)/.45)*(.66+.08*Math.sin(Math.PI*pose.phase))*(1-depthAmount)*visible;
-  // A quiet contact wash stays put. Free spray is rendered as separate pieces.
-  const washHeight=w*(layer.kind==='whale'?.032:.026);
-  ctx.drawImage(softSprayPiece(photo,0,.60,1,.40),c.x-w/2,c.y-washHeight*.55,w,washHeight);
-  const baseAlpha=ctx.globalAlpha;
-  // Fine broken foam hugs the full waterline, including the quieter right flank.
-  const count=layer.kind==='whale'?110:80;
-  for(let n=0;n<count;n++){
-   const u=(Math.sin(n*127.1+31.7)*43758.5453)%1;
-   const v=(Math.sin(n*269.5+11.3)*17321.7)%1;
-   const a=Math.abs(u),b=Math.abs(v),edge=Math.sin(Math.PI*a);
-   const px=c.x+(a-.5)*c.width*1.24;
-   const py=c.y+2+(b-.53)*Math.max(10,c.width*.11)*edge;
-   ctx.globalAlpha=baseAlpha*(.18+.48*b)*edge;
-   ctx.strokeStyle='#d8eaec';ctx.lineWidth=.65+.85*b;ctx.lineCap='round';
-   ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+1+b*2.4,py-.3);ctx.stroke();
+  if(layer.kind==='whale'){
+   ctx.save();ctx.globalAlpha=visible*(1-depthAmount);
+   paintBreachRim(ctx,photo,layer.kind,c,width,box.width,pose.phase);
+   const count=Math.max(10,Math.ceil(c.width/4));
+   const rim=Array.from({length:count},(_,i)=>({x:c.x-c.width*.5+c.width*i/(count-1),y:c.y}));
+   paintFoamEdge(ctx,rim,reduced?0:elapsed,.48);ctx.restore();continue;
   }
-  layer.spray=layer.spray.filter(fragment=>elapsed-fragment.birth<fragment.flight);
-  for(const fragment of layer.spray){
-   const p=sprayFragmentPose(fragment,elapsed-fragment.birth,sceneTravel(progress,width));
-   if(p.alpha<=0)continue;
-   ctx.globalAlpha=p.alpha*(1-depthAmount)*visible;
-   ctx.drawImage(softSprayPiece(photo,fragment.sx,.18,fragment.sw,.82),p.x-p.width/2,p.y,p.width,p.height);
+  if(orcaStaticSpray.complete&&orcaStaticSpray.naturalWidth&&layer.contact){
+   const spray=staticSprayGeometry(c,box.width,width,pose.phase);
+   ctx.save();ctx.beginPath();ctx.rect(0,spray.clipTop,width,spray.clipBottom-spray.clipTop);ctx.clip();
+   ctx.drawImage(orcaStaticSpray,spray.x,spray.y,spray.width,spray.height);ctx.restore();
   }
-  ctx.restore();
+  paintBreachRim(ctx,photo,layer.kind,c,width,box.width,pose.phase);
+  const rim=Array.from({length:Math.max(10,Math.ceil(c.width/3))},(_,i)=>({x:c.x-c.width*.6+c.width*1.2*i/Math.max(9,Math.ceil(c.width/3)-1),y:c.y+.4}));
+  paintFoamEdge(ctx,rim,reduced?0:elapsed,.8);
  }
 }
 function positionArchContact(){
@@ -390,9 +374,12 @@ function drawArchWaterlap(){
   // Three overlapping, shallow washes keep the photographic water edge broken.
   for(let i=0;i<3;i++){
    const shift=i*w*.3,bandWidth=w*(i===1?.42:.37);
-   ctx.globalAlpha=alpha*(i===1?.13:.18);
+   ctx.globalAlpha=alpha*(i===1?.24:.31);
    ctx.drawImage(photo,x+shift-3,y-2.4+(i%2)*.8,bandWidth+6,6);
   }
+  ctx.globalAlpha=alpha;
+  const points=Array.from({length:Math.max(3,Math.ceil(w/3))},(_,i)=>({x:x+w*i/Math.max(2,Math.ceil(w/3)-1),y:y+Math.sin(i*.71)*.25}));
+  paintFoamEdge(ctx,points,reduced?0:elapsed,.78);
  }
  ctx.restore();
 }
@@ -413,7 +400,10 @@ function updateSceneMotion(){
   for(const layer of breachLayers){
     const pose=currentBreachPose(layer.kind);
     const angle=reduced?breachPose(layer.kind,layer.index).angle:pose.angle;
-    layer.orbit.style.transformOrigin=`${pose.pivotX*100}% ${pose.pivotY*100}%`;
+    const art=breachArtGeometry(layer.kind,pose);
+    layer.orbit.style.left=`${art.left*100}%`;layer.orbit.style.top=`${art.top*100}%`;
+    layer.orbit.style.width=`${art.width*100}%`;layer.orbit.style.height=`${art.height*100}%`;
+    layer.orbit.style.transformOrigin=`${(art.pivotX-art.left)/art.width*100}% ${(art.pivotY-art.top)/art.height*100}%`;
     layer.orbit.style.transform=`rotate(${angle}deg)`;
     layer.window.dataset.phase=pose.phase.toFixed(4);
     layer.window.style.setProperty('--waterline',`${pose.waterline*100}%`);
@@ -421,11 +411,7 @@ function updateSceneMotion(){
     if(started&&!paused&&!reduced&&pose.phase>layer.previousPhase){
       const thresholds=sprayThresholds(layer.kind);
       for(const [i,threshold] of thresholds.entries())if(layer.previousPhase<threshold&&pose.phase>=threshold){
-        const c=breachContact(layer,pose,angle);
-        const subjectWidth=layer.window.getBoundingClientRect().width;
-        const spread=breachFoamGeometry(layer.kind,c.width,width,subjectWidth).width;
-        if(layer.contact)layer.spray.push(makeSprayFragment(layer.kind,i,c,spread,sceneTravel(progress,width),elapsed));
-        if(i===2)splashAt(c.x,c.y,layer.kind==='whale'?.32:.24);
+        if(i===2)soundscape.splash(layer.kind==='whale'?.32:.24);
       }
       if(layer.spray.length>14)layer.spray=layer.spray.slice(-14);
     }

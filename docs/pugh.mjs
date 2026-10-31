@@ -1,5 +1,6 @@
 import {pughPose} from './expedition-motion.mjs?v=32';
 import {sceneStride} from './motion.mjs?v=32';
+import {photographMatteAlpha} from './pugh-matte.mjs?v=43';
 
 // Reuse the complete v8 photograph. Animated mattes keep the identity and pose
 // intact while separating the head/torso from the two foreground hands.
@@ -21,7 +22,10 @@ export function createPugh(wrap){
   if(!source.naturalWidth)return;
   for(const r of regions){
    const c=document.createElement('canvas');c.width=W;c.height=H;
-   const g=c.getContext('2d');g.save();g.beginPath();r.path.forEach(([x,y],i)=>i?g.lineTo(x/1737*W,y/906*H):g.moveTo(x/1737*W,y/906*H));g.closePath();g.clip();g.drawImage(source,0,0,W,H);g.restore();
+   const g=c.getContext('2d',{willReadFrequently:true});g.save();g.beginPath();r.path.forEach(([x,y],i)=>i?g.lineTo(x/1737*W,y/906*H):g.moveTo(x/1737*W,y/906*H));g.closePath();g.clip();g.drawImage(source,0,0,W,H);g.restore();
+   const matte=g.getImageData(0,0,W,H),pixels=matte.data;
+   for(let i=0;i<pixels.length;i+=4)if(pixels[i+3])pixels[i+3]=photographMatteAlpha(r.id,pixels[i],pixels[i+1],pixels[i+2],pixels[i+3]);
+   g.putImageData(matte,0,0);
    // The only photograph below each body part is a narrow, feathered contact.
    g.globalCompositeOperation='destination-in';const fade=g.createLinearGradient(0,H*(r.line-.022),0,H*(r.line+.026));fade.addColorStop(0,'#fff');fade.addColorStop(1,'#fff0');g.fillStyle=fade;g.fillRect(0,0,W,H);r.layer=c;
   }

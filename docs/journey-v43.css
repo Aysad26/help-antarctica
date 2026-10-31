@@ -1,0 +1,7 @@
+/* Preserve atmospheric distance; soften only the near sea's deep blue troughs. */
+#nearWaterBackdrop,#foregroundWater{
+ filter:saturate(.84) contrast(.81) brightness(calc(1.095 - var(--dusk)*.2628));
+}
+@media(max-width:700px){
+ .swimmer-wrap{bottom:7.5svh}
+}
