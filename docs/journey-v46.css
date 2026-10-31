@@ -1,0 +1,19 @@
+/* Ease the blend between registered water photographs, retaining their depth,
+   texture size, travel and the lower physical occlusion plane. */
+#nearWaterBackdrop{
+ mask-image:linear-gradient(transparent 70%,rgba(0,0,0,.06) 71.5%,rgba(0,0,0,.25) 73.4%,rgba(0,0,0,.59) 75.6%,rgba(0,0,0,.91) 78%,#000 80%);
+ -webkit-mask-image:linear-gradient(transparent 70%,rgba(0,0,0,.06) 71.5%,rgba(0,0,0,.25) 73.4%,rgba(0,0,0,.59) 75.6%,rgba(0,0,0,.91) 78%,#000 80%);
+}
+.weddell-wrap>.animal-image{filter:saturate(.96) contrast(.97) blur(.2px)}
+.cormorant-wrap>.animal-image{filter:saturate(.86) brightness(.92) contrast(.97) blur(.2px)}
+@media(max-width:700px){
+ /* Keep the leading heads inside the stronger mobile close-up. */
+ .orca-wrap{transform-origin:15% 80%}
+ .whale-wrap{transform-origin:85% 65%}
+ #nearWaterBackdrop{
+  mask-image:linear-gradient(transparent 80%,rgba(0,0,0,.055) 81.5%,rgba(0,0,0,.23) 83.2%,rgba(0,0,0,.62) 85.7%,rgba(0,0,0,.93) 88%,#000 89%);
+  -webkit-mask-image:linear-gradient(transparent 80%,rgba(0,0,0,.055) 81.5%,rgba(0,0,0,.23) 83.2%,rgba(0,0,0,.62) 85.7%,rgba(0,0,0,.93) 88%,#000 89%);
+ }
+ .weddell-wrap>.animal-image{filter:saturate(.96) contrast(.97) blur(.12px)}
+ .cormorant-wrap>.animal-image{filter:saturate(.86) brightness(.92) contrast(.97) blur(.12px)}
+}

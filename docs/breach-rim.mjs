@@ -1,5 +1,14 @@
 import {breachFoamGeometry} from './motion.mjs?v=32';
 const strips=new WeakMap();
+const smooth=value=>{const x=Math.max(0,Math.min(1,value));return x*x*(3-2*x);};
+
+export function breachRimDensity(u){
+ const taper=smooth(u/.12)*smooth((1-u)/.12);
+ const core=Math.exp(-Math.pow((u-.5)/.25,4));
+ const grain=.74+.26*(.5+.5*Math.sin(u*72+.5*Math.sin(u*19)));
+ const gaps=1-.5*Math.exp(-Math.pow((u-.18)/.022,2))-.5*Math.exp(-Math.pow((u-.78)/.025,2));
+ return taper*(.42+.58*core)*(core*.7+(1-core*.7)*grain)*gaps;
+}
 
 // Reuse the earlier photographic foam, flattened to a narrow surface band.
 // This denser breach foam is independent of the quiet ice-edge highlights.
@@ -13,7 +22,7 @@ export function paintBreachRim(ctx,photo,kind,contact,viewportWidth,subjectWidth
   g.globalCompositeOperation='source-in';g.fillStyle='#f1f9fa';g.fillRect(0,0,w,h);
   g.globalCompositeOperation='destination-in';
   const across=g.createLinearGradient(0,0,w,0);
-  across.addColorStop(0,'#fff0');across.addColorStop(.14,'#fff');across.addColorStop(.86,'#fff');across.addColorStop(1,'#fff0');
+  for(let i=0;i<=100;i++)across.addColorStop(i/100,`rgba(255,255,255,${breachRimDensity(i/100).toFixed(3)})`);
   g.fillStyle=across;g.fillRect(0,0,w,h);
   const down=g.createLinearGradient(0,0,0,h);
   down.addColorStop(0,'#fff0');down.addColorStop(.18,'#fff');down.addColorStop(.68,'#fff');down.addColorStop(1,'#fff0');

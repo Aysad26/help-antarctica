@@ -2,7 +2,13 @@ import {paintFoamEdge} from './surface-contact.mjs?v=44';
 // Keep the original birds and floe, discarding the old rectangular water foot.
 // Their new reflection is compressed and broken by the existing sea's ripples.
 export function floeWaterY(u,height){
- return height*(.832+Math.sin(u*7.8)*.0035-Math.pow(u,7)*.01);
+ // The source sea starts just below .833h. Stay in solid ice throughout the
+ // irregular cut, so none of the old flat photographic water can reappear.
+ return height*(.831-(1+Math.sin(u*19.7+.4))*.0024-(1+Math.sin(u*43.1+1.7))*.0012-Math.pow(u,7)*.004);
+}
+export function penguinContactY(u,height,time=0,reduced=false){
+ const wave=reduced?0:(.5+.5*Math.sin(u*27-time*.65+Math.sin(u*11)))*height*.0045*(.55+.45*Math.sin(u*Math.PI));
+ return floeWaterY(u,height)-wave;
 }
 export function createPenguinWater(wrap){
  const image=wrap.querySelector('.animal-image');
@@ -50,18 +56,22 @@ export function createPenguinWater(wrap){
    const y=top+row*step,dx=Math.sin(t*.42+row*2.3)*(.25+row*.11);
    ctx.drawImage(reflected,0,y,w,step,dx,y,w,step);
   }
-  ctx.drawImage(art,0,0);
-  const edge=Array.from({length:170},(_,i)=>{const u=.015+.97*i/169;return {x:u*w,y:floeWaterY(u,h)};});
-  paintFoamEdge(ctx,edge,t,1);
-  // A narrow wet seam and discontinuous pale waterlap, with no bright halo.
-  for(let band=0;band<2;band++)for(let segment=0;segment<13;segment++){
-   const a=.015+segment*.074,b=Math.min(.983,a+.039+(segment%3)*.007);
+  // The real water underneath occludes a few source pixels at the ice edge.
+  // The birds remain intact; the subtle lap is confined to the bottom seam.
+  ctx.save();ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(w,0);
+  for(let x=w;x>=0;x-=2)ctx.lineTo(x,penguinContactY(x/w,h,t,reduced));
+  ctx.closePath();ctx.clip();ctx.drawImage(art,0,0);ctx.restore();
+  const edge=Array.from({length:170},(_,i)=>{const u=.015+.97*i/169;return {x:u*w,y:penguinContactY(u,h,t,reduced)};});
+  paintFoamEdge(ctx,edge,t,.9);
+  // Quiet, unequal ripple segments break the former straight baseline.
+  for(const [a,length] of [[.04,.07],[.17,.095],[.34,.05],[.53,.12],[.76,.065],[.9,.045]]){
+   const b=a+length;
    ctx.beginPath();
    for(let i=0;i<=8;i++){
-    const u=a+(b-a)*i/8,x=u*w,y=floeWaterY(u,h)+band*2.7+Math.sin(u*85-t*.5)*.55;
+    const u=a+(b-a)*i/8,x=u*w,y=penguinContactY(u,h,t,reduced)+1.8+Math.sin(u*63-t*.35)*.4;
     i?ctx.lineTo(x,y):ctx.moveTo(x,y);
    }
-   ctx.lineWidth=band?.55:1;ctx.strokeStyle=band?'#dceaf044':'#173d5559';ctx.stroke();
+   ctx.lineWidth=.65;ctx.strokeStyle='#c5dbe95e';ctx.stroke();
   }
  }
  image.addEventListener('load',prepare,{once:true});if(image.complete)prepare();
