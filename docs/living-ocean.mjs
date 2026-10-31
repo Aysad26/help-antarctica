@@ -1,29 +1,15 @@
-// Three photographic jellyfish breathe and sway on small Canvas 2D surfaces.
-// No additional WebGL contexts or preserved GPU drawing buffers are needed.
+import {createLivingJellies} from './living-jellies.mjs?v=41';
+// Shared photographic jellyfish renderer; the existing krill scene stays 2D.
 export function createLivingOcean(root){
  const jellyImage=new Image();jellyImage.src='assets/jellyfish-v5.webp';
  const krillImage=new Image();krillImage.src='assets/krill-v6.webp';
- const renderers=[];
- for(let i=0;i<3;i++){
-  const canvas=document.createElement('canvas');canvas.className='living-jelly jelly-'+i;
-  canvas.width=640;canvas.height=640;canvas.setAttribute('aria-hidden','true');
-  root.querySelector('.jellyfish-wrap').prepend(canvas);
-  const ctx=canvas.getContext('2d');
-  renderers.push((time,reduced)=>{
-   if(!jellyImage.complete||!jellyImage.naturalWidth)return;
-   ctx.clearRect(0,0,640,640);ctx.save();
-   const t=reduced?0:time*(1-i*.11),pulse=reduced?0:Math.sin(t*.62+i*2.3)*.018;
-   ctx.translate(320,320);ctx.rotate(reduced?0:Math.sin(t*.25+i)*.018);ctx.scale(1+pulse,1-pulse*.6);
-   const size=560;ctx.drawImage(jellyImage,-size/2,-size/2+Math.sin(t*.45+i)*3,size,size);ctx.restore();
-  });
- }
- if(renderers.length===3)root.querySelector('.jellyfish-wrap').classList.add('mesh-ready');
+ const jellies=createLivingJellies(root.querySelector('.jellyfish-wrap'),jellyImage);
  const school=document.createElement('canvas');school.className='living-krill';school.width=1000;school.height=700;school.setAttribute('aria-hidden','true');root.querySelector('.krill-wrap').prepend(school);
  const ctx=school.getContext('2d');
  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
  krillImage.addEventListener('load',()=>root.querySelector('.krill-wrap').classList.add('school-ready'));
  return {paint(time,progress,reduced){
-  if(Math.abs(progress-3.5)<.75)for(const render of renderers)render(time,reduced);
+  jellies.paint(time,progress,reduced);
   if(Math.abs(progress-3)<.85&&krillImage.complete&&krillImage.naturalWidth){
    ctx.clearRect(0,0,1000,700);const t=reduced?0:time;
    // Different speeds and vertical oscillations, with no synchronized flock jump.

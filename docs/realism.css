@@ -1,5 +1,6 @@
 .jellyfish-wrap>.animal-image,.jelly-distant{animation:none}
 .living-jelly{position:absolute;width:100%;height:auto;aspect-ratio:1;inset:0;pointer-events:none}
+.living-jellies{position:absolute;pointer-events:none;z-index:2}
 .jellyfish-wrap{aspect-ratio:1;width:min(49vw,75svh);right:3vw;bottom:5svh}
 .jellyfish-wrap.mesh-ready>.animal-image,.jellyfish-wrap.mesh-ready>.jelly-distant{visibility:hidden}
 .jelly-0{z-index:2;opacity:.92}
