@@ -1,0 +1,20 @@
+/* The final action is separate from the information card and travels with it. */
+.final-share{
+ position:absolute;z-index:6;width:260px;max-width:88vw;min-height:58px;
+ padding:17px 22px;gap:22px;font:600 16px/1.2 Moderustic,Arial,sans-serif;
+ white-space:nowrap;touch-action:manipulation;
+}
+.final-share .share-label{flex:0 0 auto}
+.final-share>svg{width:22px;height:22px;flex:0 0 22px;stroke-width:1.6}
+@media(max-width:700px){
+ .final-share{width:min(260px,66vw);font-size:15px}
+}
+@media(max-width:350px){
+ .final-share{padding:15px 19px;min-height:52px;gap:16px;font-size:14px}
+}
+@media(max-width:700px) and (max-height:680px){
+ .workers-scene .story-card{padding:14px 18px}
+ .workers-scene .story-card h2{font-size:20px;line-height:1.12;margin-bottom:10px}
+ .workers-scene .story-card .card-mobile{font-size:11px;line-height:1.55}
+ .final-share{min-height:52px;padding-top:14px;padding-bottom:14px}
+}

@@ -37,8 +37,8 @@ const LAST=scenes.length-1,SHIP=scenes.findIndex(s=>s.animal==='ship'),BIRDS=sce
 const arrow='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>';
 const track=$('#sceneTrack');
 track.innerHTML=scenes.map((s,i)=>`<section class="scene ${s.animal}-scene ${i===0?'active':''}" aria-labelledby="sceneTitle${i}" data-index="${i}" ${i?'inert aria-hidden="true"':''}>
- <article class="story-card"><div class="card-eyebrow">${String(i+1).padStart(2,'0')} / ${s.eyebrow.replace(/^\d+ \/ /,'')}</div><h2 id="sceneTitle${i}">${s.title}</h2><p class="card-full">${s.text}</p><p class="card-full">${s.text2}</p><p class="card-mobile">${s.mobileText}</p><div class="card-divider"></div><p class="card-fact">${s.fact}</p><div class="card-actions"><button class="card-link" data-modal="${s.modal}">${s.cta}${arrow}</button>${i===LAST?`<button class="card-secondary" id="shareButton">${ui.share}</button>`:''}</div></article>
- ${i===LAST?'<div class="shore-foreground" aria-hidden="true"></div>':''}
+ <article class="story-card"><div class="card-eyebrow">${String(i+1).padStart(2,'0')} / ${s.eyebrow.replace(/^\d+ \/ /,'')}</div><h2 id="sceneTitle${i}">${s.title}</h2><p class="card-full">${s.text}</p><p class="card-full">${s.text2}</p><p class="card-mobile">${s.mobileText}</p><div class="card-divider"></div><p class="card-fact">${s.fact}</p><div class="card-actions"><button class="card-link" data-modal="${s.modal}">${s.cta}${arrow}</button></div></article>
+ ${i===LAST?`<button class="primary-button final-share" id="shareButton"><span class="share-label">${ui.share}</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.7 7.6-4.4m-7.6 7 7.6 4.4"/></svg></button><div class="shore-foreground" aria-hidden="true"></div>`:''}
  <div class="animal-wrap ${s.animal}-wrap" ${['ship','station'].includes(s.animal)?'data-landing-anchor':''}>
  ${s.splash?`<div class="breach-window"><div class="breach-orbit"><img class="animal-image" src="${ASSET+s.image}" alt="${s.subject}" decoding="async"></div></div>`:s.animal==='swimmer'?`<img class="animal-image swimmer-original" src="${ASSET+s.image}" alt="${ui.swimmerAlt}">`:!['ship','station'].includes(s.animal)?`<img class="animal-image" src="${ASSET+s.image}" alt="${s.subject}" decoding="async">`:''}
  ${s.animal==='krill'?'<img class="krill-distant" src="assets/krill-v5.webp" alt="" aria-hidden="true"><img class="krill-distant second" src="assets/krill-v5.webp" alt="" aria-hidden="true">':''}${s.animal==='jellyfish'?'<img class="jelly-distant" src="assets/jellyfish-v5.webp" alt="" aria-hidden="true"><img class="jelly-distant second" src="assets/jellyfish-v5.webp" alt="" aria-hidden="true">':''}
@@ -65,6 +65,25 @@ const reducedQuery=matchMedia('(prefers-reduced-motion: reduce)');
 let reduced=reducedQuery.matches;
 document.body.classList.toggle('reduced-motion',reduced);
 const sceneEls=$$('.scene');
+const finalCard=$('.workers-scene .story-card'),finalShare=$('#shareButton'),finalPeople=$('.workers-wrap');
+function positionFinalShare(){
+ // On short phones reserve a real gap above the people. The existing card
+ // scrolls internally, while its separate primary action stays visible.
+ if(innerWidth<=700&&innerHeight<=680){
+  const limit=finalPeople.offsetTop-finalCard.offsetTop-finalShare.offsetHeight-22;
+  finalCard.style.maxHeight=`${Math.max(118,limit)}px`;
+ }else finalCard.style.maxHeight='';
+ const card=finalCard.getBoundingClientRect(),scene=sceneEls[LAST].getBoundingClientRect();
+ finalShare.style.left=`${card.left-scene.left}px`;
+ finalShare.style.top=`${card.bottom-scene.top+14}px`;
+}
+if(typeof ResizeObserver==='function'){
+ const observer=new ResizeObserver(positionFinalShare);observer.observe(finalCard);observer.observe(finalPeople);
+}
+addEventListener('resize',positionFinalShare);
+document.fonts?.ready.then(positionFinalShare);
+$('.animal-image',finalPeople).addEventListener('load',positionFinalShare);
+
 const arrivalScenes=[['orca',1],['whale',2],['swimmer',6]].map(([kind,index])=>({kind,index,card:$('.story-card',sceneEls[index]),image:$('.animal-image',sceneEls[index])}));
 function currentBreachPose(kind){
  return breachPose(kind,progress,sceneStride(width)/width,width>700?(reduced?1:scrollArrivalPhase(kind,progress)):undefined);
@@ -563,9 +582,9 @@ function localizeJourney(){
  elephantChapter.setAttribute('aria-label',ui.elephant);shipChapter.setAttribute('aria-label',ui.expedition);
  const shipHint=$('.ship-info');shipHint.setAttribute('aria-label',text('infoLabel',{subject:ui.researchShip}));$('.species-name',shipHint).textContent=ui.researchShip;
  const leopardHint=$('.leopard-hint');leopardHint.setAttribute('aria-label',text('infoLabel',{subject:scenes[4].subject}));$('.species-name',leopardHint).textContent=scenes[4].subject;
- $('#shareButton').textContent=ui.share;
+ $('#shareButton .share-label').textContent=ui.share;
  $('#albatrossRoute .route-item-name').innerHTML=`${ui.albatrossRoute}<small>${ui.albatrossRouteDetail}</small>`;
- passages.localize();albatross.localize();
+ passages.localize();albatross.localize();positionFinalShare();
  $('#headerCenter').textContent=started||opening?ui.taglineJourney:ui.taglineIntro;
  $('#snowToggle').setAttribute('aria-label',snowOn?ui.snowOff:ui.snowOn);$('#snowToggle').title=snowOn?ui.snowOff:ui.snowOn;
  $('#soundToggle').setAttribute('aria-label',soundscape.enabled?ui.soundOff:ui.soundOn);$('#soundToggle').title=soundscape.enabled?ui.soundOff:ui.soundOn;
