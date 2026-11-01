@@ -89,8 +89,8 @@ const wildlifeLabels=createWildlifeLabels($('#story'));
 const livingOcean=createLivingOcean($('#story'));
 const pugh=createPugh($('.swimmer-wrap'));
 const albatross=createAlbatross($('#albatrossPassage'));
-// Draw the italic information mark once, independent of installed fonts.
-for(const mark of $$('.info-i'))mark.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="14.2" cy="5" rx="1.8" ry="1.6"/><path d="M9 10.3c1.6-1.1 3.2-1.7 4.5-1.7 1.2 0 1.6.6 1.2 2L12 18c-.2.7-.1 1 .3 1 .6 0 1.3-.4 2.5-1.4l.8 1c-1.9 1.9-3.6 2.9-5.2 2.9-1.7 0-2.2-1.1-1.5-3.1l2.6-7.2c.2-.6.1-.8-.2-.8-.4 0-1 .3-1.6.7Z"/></svg>';
+// A compact upright serif mark, independent of installed fonts.
+for(const mark of $$('.info-i'))mark.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="5.3" r="1.45"/><path d="M8.8 9.2h4.3v9.1c0 .8.4 1.1 1.2 1.1h1v1H8.7v-1h1c.8 0 1.2-.3 1.2-1.1v-6.9c0-.8-.4-1.1-1.2-1.1h-.9Z"/></svg>';
 $('#routeList [data-chapter="1"]').insertAdjacentHTML('afterend','<button class="route-item route-passage" data-chapter="1.5"><span aria-hidden="true">↝</span><span class="route-item-name">На крыльях ветра<small>Чернобровый альбатрос · пролёт</small></span><span aria-hidden="true">↗</span></button>');
 let dialogTrigger=null;
 function sourceLinks(items){return items.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`).join('');}
