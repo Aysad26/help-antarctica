@@ -1,6 +1,7 @@
+import {advanceFinalScroll,finalScrollLayout} from './final-scroll.mjs?v=53';
 import {surfaceClipPolygon} from './surface-clip.mjs?v=47';
 import {createSnow} from './snow.mjs?v=32';
-import {createShoreRenderer} from './shore-renderer.mjs?v=47';
+import {createShoreRenderer} from './shore-renderer.mjs?v=53';
 import {createPassages} from './passages.mjs?v=51';
 import {shipApproachPose,shipContactAt,archLayoutBox} from './ship-approach.mjs?v=50';
 import {createPenguinWater} from './penguin-water.mjs?v=46';
@@ -66,16 +67,25 @@ let reduced=reducedQuery.matches;
 document.body.classList.toggle('reduced-motion',reduced);
 const sceneEls=$$('.scene');
 const finalCard=$('.workers-scene .story-card'),finalShare=$('#shareButton'),finalPeople=$('.workers-wrap');
+let finalOffset=0,finalTarget=0,finalLimit=0,finalButtonTop=0,finalButtonHeight=0,finalFooterTop=0;
 function positionFinalShare(){
- // On short phones reserve a real gap above the people. The existing card
- // scrolls internally, while its separate primary action stays visible.
- if(innerWidth<=700&&innerHeight<=680){
-  const limit=finalPeople.offsetTop-finalCard.offsetTop-finalShare.offsetHeight-22;
-  finalCard.style.maxHeight=`${Math.max(118,limit)}px`;
- }else finalCard.style.maxHeight='';
+ // Measure only on layout changes, never in the animation loop.
+ finalCard.style.maxHeight='';
  const card=finalCard.getBoundingClientRect(),scene=sceneEls[LAST].getBoundingClientRect();
+ if(innerWidth<=700){
+  const cardLimit=finalPeople.offsetTop-finalShare.offsetHeight-14-finalCard.offsetTop-16;
+  finalCard.style.maxHeight=`${Math.max(118,Math.ceil(cardLimit)+2)}px`;
+  const peopleBottom=finalPeople.offsetTop+finalPeople.offsetHeight;
+  const layout=finalScrollLayout(peopleBottom,finalShare.offsetHeight,innerHeight,$('.journey-footer').offsetHeight);
+  finalLimit=layout.limit;finalButtonTop=layout.top;finalButtonHeight=finalShare.offsetHeight;finalFooterTop=innerHeight-$('.journey-footer').offsetHeight;
+  finalShare.style.top=`${layout.top}px`;
+ }else{
+  finalLimit=finalTarget=finalOffset=0;
+  document.documentElement.style.setProperty('--final-scroll',0);
+  finalShare.style.top=`${card.bottom-scene.top+14}px`;
+ }
  finalShare.style.left=`${card.left-scene.left}px`;
- finalShare.style.top=`${card.bottom-scene.top+14}px`;
+ finalTarget=Math.min(finalTarget,finalLimit);finalOffset=Math.min(finalOffset,finalLimit);
 }
 if(typeof ResizeObserver==='function'){
  const observer=new ResizeObserver(positionFinalShare);observer.observe(finalCard);observer.observe(finalPeople);
@@ -83,6 +93,7 @@ if(typeof ResizeObserver==='function'){
 addEventListener('resize',positionFinalShare);
 document.fonts?.ready.then(positionFinalShare);
 $('.animal-image',finalPeople).addEventListener('load',positionFinalShare);
+finalShare.addEventListener('focus',()=>{if(width<=700&&chapter===LAST)finalTarget=finalLimit;});
 
 const arrivalScenes=[['orca',1],['whale',2],['swimmer',6]].map(([kind,index])=>({kind,index,card:$('.story-card',sceneEls[index]),image:$('.animal-image',sceneEls[index])}));
 function currentBreachPose(kind){
@@ -128,15 +139,19 @@ $('#closeRoute').addEventListener('click',()=>{$('#routeDialog').close();documen
 $('#routeDialog').addEventListener('cancel',()=>document.body.classList.remove('modal-open'));
 function start(n=0){if(started||opening)return;opening=true;target=progress=n;chapter=n;positionIntroMask();$('#startButton').disabled=true;$('#intro').classList.add('opening');$('#intro').inert=true;$('#story').inert=false;updateChapter(true);setTimeout(()=>{started=true;opening=false;$('#intro').classList.add('hidden');$('#journeyUI').classList.add('visible');$('#journeyUI').inert=false;$('#headerCenter').textContent=ui.taglineJourney;$('#story').focus({preventScroll:true});document.body.classList.remove('prestart');},reduced?30:1550);}
 $('#startButton').addEventListener('click',()=>start());
-$('#homeButton').addEventListener('click',()=>{if(!started)return;started=false;opening=false;document.body.classList.add('prestart');target=progress=chapter=0;$('#intro').classList.remove('opening','hidden');$('#intro').inert=false;$('#startButton').disabled=false;$('#journeyUI').classList.remove('visible');$('#journeyUI').inert=true;$('#story').inert=true;$('#headerCenter').textContent=ui.taglineIntro;scrollVelocity=0;updateChapter(true);positionIntroMask();$('#startButton').focus({preventScroll:true});});
-function go(n){scrollVelocity=0;target=Math.max(0,Math.min(scenes.length-1,n));if(reduced){progress=target;updateChapter();}}
+$('#homeButton').addEventListener('click',()=>{if(!started)return;started=false;opening=false;document.body.classList.add('prestart');target=progress=chapter=0;finalTarget=finalOffset=0;$('#intro').classList.remove('opening','hidden');$('#intro').inert=false;$('#startButton').disabled=false;$('#journeyUI').classList.remove('visible');$('#journeyUI').inert=true;$('#story').inert=true;$('#headerCenter').textContent=ui.taglineIntro;scrollVelocity=0;updateChapter(true);positionIntroMask();$('#startButton').focus({preventScroll:true});});
+function go(n){scrollVelocity=0;finalTarget=0;target=Math.max(0,Math.min(scenes.length-1,n));if(reduced){progress=target;updateChapter();}}
 $('#nextButton').addEventListener('click',()=>go(adjacentStop(target,1)));
 $('#previousButton').addEventListener('click',()=>go(adjacentStop(target,-1)));
-addEventListener('wheel',e=>{if(!started||$('.info-dialog[open]')||$('.route-dialog[open]'))return;if(e.target.closest('.story-card')&&e.target.closest('.story-card').scrollHeight>e.target.closest('.story-card').clientHeight+3){const el=e.target.closest('.story-card');if((e.deltaY>0&&el.scrollTop+el.clientHeight<el.scrollHeight-3)||(e.deltaY<0&&el.scrollTop>2))return;}e.preventDefault();const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;const norm=delta*(e.deltaMode===1?16:e.deltaMode===2?height:1);target=Math.max(0,Math.min(LAST,travelProgress(sceneTravel(target,width)+norm*width/(width<700?720:1050),width)));scrollVelocity=0;},{passive:false});
+addEventListener('wheel',e=>{if(!started||$('.info-dialog[open]')||$('.route-dialog[open]'))return;if(e.target.closest('.story-card')&&e.target.closest('.story-card').scrollHeight>e.target.closest('.story-card').clientHeight+3){const el=e.target.closest('.story-card');if((e.deltaY>0&&el.scrollTop+el.clientHeight<el.scrollHeight-3)||(e.deltaY<0&&el.scrollTop>2))return;}e.preventDefault();const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;const norm=delta*(e.deltaMode===1?16:e.deltaMode===2?height:1);advanceInput(norm*width/(width<=700?720:1050));scrollVelocity=0;},{passive:false});
 let seekDragging=false;$('#journeyScrubber').addEventListener('pointerdown',()=>seekDragging=true);addEventListener('pointerup',()=>seekDragging=false);addEventListener('pointercancel',()=>seekDragging=false);
-$('#journeyScrubber').addEventListener('input',e=>{scrollVelocity=0;target=travelProgress(Number(e.target.value)/1000*sceneTravel(LAST,width),width);});
+$('#journeyScrubber').addEventListener('input',e=>{scrollVelocity=0;finalTarget=0;target=travelProgress(Number(e.target.value)/1000*sceneTravel(LAST,width),width);});
 let gesture=null,zoomAmount=0,cameraScale=1;
-function beginGesture(x,y,card){scrollVelocity=0;gesture={began:performance.now(),moved:false,x,y,initial:target,card,scrolling:false,lastProgress:target,lastTime:performance.now(),velocity:0};}
+function advanceInput(delta,initial=target,offset=finalTarget){
+ const next=advanceFinalScroll(initial,offset,delta,width,finalLimit,LAST);
+ target=next.progress;finalTarget=next.offset;
+}
+function beginGesture(x,y,card){scrollVelocity=0;gesture={began:performance.now(),moved:false,x,y,initial:target,initialOffset:finalTarget,card,scrolling:false,lastPosition:sceneTravel(target,width)+finalTarget,lastTime:performance.now(),velocity:0};}
 function moveGesture(x,y,event){
   if(!gesture||!started)return;
   const dx=gesture.x-x,dy=gesture.y-y;
@@ -144,13 +159,13 @@ function moveGesture(x,y,event){
   if(gesture.card&&Math.abs(dy)>Math.abs(dx)&&gesture.card.scrollHeight>gesture.card.clientHeight+2){gesture.scrolling=true;return;}
   if(event.cancelable)event.preventDefault();
   const d=Math.abs(dx)>Math.abs(dy)?dx:dy;
-  const next=clamp(travelProgress(sceneTravel(gesture.initial,width)+d,width),0,LAST),now=performance.now(),deltaTime=(now-gesture.lastTime)/1000;
-  if(deltaTime>.004){const velocity=(next-gesture.lastProgress)/Math.min(deltaTime,.12);gesture.velocity=lerp(gesture.velocity,clamp(velocity,-3*width/sceneStride(width),3*width/sceneStride(width)),.45);gesture.lastProgress=next;gesture.lastTime=now;}
-  target=next;
+  advanceInput(d,gesture.initial,gesture.initialOffset);
+  const position=sceneTravel(target,width)+finalTarget,now=performance.now(),deltaTime=(now-gesture.lastTime)/1000;
+  if(deltaTime>.004){const velocity=(position-gesture.lastPosition)/Math.min(deltaTime,.12);gesture.velocity=lerp(gesture.velocity,clamp(velocity,-3*width,3*width),.45);gesture.lastPosition=position;gesture.lastTime=now;}
 }
 function finishGesture(){
   if(!gesture)return;
-  if(!gesture.scrolling&&performance.now()-gesture.lastTime<100)scrollVelocity=Math.abs(gesture.velocity)>.04?gesture.velocity:0;
+  if(!gesture.scrolling&&performance.now()-gesture.lastTime<100)scrollVelocity=Math.abs(gesture.velocity)>8?gesture.velocity:0;
   gesture=null;
 }
 const story=$('#story');
@@ -164,7 +179,7 @@ story.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||!started||e
 story.addEventListener('pointermove',e=>{if(e.pointerType!=='touch')moveGesture(e.clientX,e.clientY,e);});
 story.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')finishGesture();});
 story.addEventListener('pointercancel',e=>{if(e.pointerType!=='touch')finishGesture();});
-addEventListener('keydown',e=>{if(!started||$('dialog[open]')||e.altKey||e.ctrlKey||e.metaKey)return;if(e.target.closest('button,a,input,textarea,select'))return;const map={ArrowRight:1,ArrowDown:1,PageDown:1,ArrowLeft:-1,ArrowUp:-1,PageUp:-1};if(map[e.key]){e.preventDefault();go(adjacentStop(target,map[e.key]));}if(e.key==='Home'){e.preventDefault();go(0);}if(e.key==='End'){e.preventDefault();go(LAST);}});
+addEventListener('keydown',e=>{if(!started||$('dialog[open]')||e.altKey||e.ctrlKey||e.metaKey)return;if(e.target.closest('button,a,input,textarea,select'))return;const map={ArrowRight:1,ArrowDown:1,PageDown:1,ArrowLeft:-1,ArrowUp:-1,PageUp:-1};if(map[e.key]){e.preventDefault();if(width<=700&&((target===LAST&&map[e.key]>0)||finalTarget>0))advanceInput(map[e.key]*finalLimit);else go(adjacentStop(target,map[e.key]));}if(e.key==='Home'){e.preventDefault();go(0);}if(e.key==='End'){e.preventDefault();go(LAST);}});
 let chapterUiKey='';
 function updateChapter(force=false){const passage=[.5,1.5,3.5,4.5].map((stop,i)=>({stop,name:ui.passageNames[i]})).find(s=>Math.abs(sceneTravel(progress,width)-sceneTravel(s.stop,width))<width*.36);const next=Math.max(0,Math.min(LAST,Math.round(progress)));const key=`${next}:${passage?.stop??-1}:${progress<.001}:${progress>LAST-.001}`;if(key===chapterUiKey&&!force)return;chapterUiKey=key;chapter=next;sceneEls.forEach((el,i)=>{if(i===chapter&&!el.classList.contains('active')){const card=$('.story-card',el);if(card)card.scrollTop=0;}el.classList.toggle('active',i===chapter&&!passage);el.inert=i!==chapter||!!passage;el.setAttribute('aria-hidden',String(i!==chapter||!!passage));});$$('.chapter-dot').forEach((b,i)=>i===chapter&&!passage?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current'));$('#pageCounter').innerHTML=passage?`↝ <i>${passage.name}</i>`:`${String(chapter+1).padStart(2,'0')} <i>/ ${String(scenes.length).padStart(2,'0')}</i>`;$('#previousButton').disabled=progress<.001;$('#nextButton').disabled=progress>LAST-.001;}
 
@@ -210,7 +225,7 @@ function paint(dt){
   snow.paint(ctx,flakes,travel,width,height,progress,elapsed,depth.amount,'near');
   snow.paint(mctx,middleFlakes,travel,width,height,progress,elapsed,depth.amount,'middle');
  }
- shoreRenderer.paint(progress,width,height,dpr);
+ shoreRenderer.paint(progress,width,height,dpr,finalOffset);
  if(depth.amount>.01){
   ctx.save();ctx.globalAlpha=depth.amount;
   ctx.beginPath();ctx.moveTo(0,height);for(let x=0;x<=width+16;x+=16)ctx.lineTo(x,surfaceY(x,width,height,progress,elapsed));ctx.lineTo(width,height);ctx.closePath();ctx.clip();
@@ -519,12 +534,19 @@ function updateEnvironment(dt){
 function animate(time){
  const frameSeconds=Math.max(0,(time-lastTime)/1000),dt=Math.min(.045,frameSeconds);lastTime=time;
  if(!paused&&!reduced&&!document.hidden)elapsed+=dt;
- if(!gesture&&started&&!$('dialog[open]')&&Math.abs(scrollVelocity)>.004){
-  target=clamp(target+scrollVelocity*dt,0,LAST);scrollVelocity*=Math.exp(-dt*5.5);
-  if(target===0||target===LAST)scrollVelocity=0;
+ if(!gesture&&started&&!$('dialog[open]')&&Math.abs(scrollVelocity)>8){
+  advanceInput(scrollVelocity*dt);scrollVelocity*=Math.exp(-dt*5.5);
+  if(target===0||(target===LAST&&finalTarget>=finalLimit))scrollVelocity=0;
  }
  progress=easedCamera(progress,target,dt,reduced,!!gesture);
  if(Math.abs(target-progress)<.0001)progress=target;
+ const finalGoal=width<=700&&progress>=LAST-.0001?finalTarget:0;
+ finalOffset=reduced?finalGoal:lerp(finalOffset,finalGoal,1-Math.exp(-dt*(gesture?20:14)));
+ if(Math.abs(finalOffset-finalGoal)<.05)finalOffset=finalGoal;
+ document.documentElement.style.setProperty('--final-scroll',finalOffset.toFixed(3));
+ const clipped=width<=700?clamp(finalButtonTop-finalOffset+finalButtonHeight-finalFooterTop,0,finalButtonHeight):0;
+ finalShare.style.clipPath=`inset(0 0 ${clipped}px 0)`;
+ finalShare.style.visibility=width>700||progress>=LAST-.0001?'visible':'hidden';
  const travel=sceneTravel(progress,width);track.style.transform=`translateX(${-travel}px)`;
  $('#sky').style.backgroundPositionX=`${-travel*.11}px`;
  const panoramaHeight=height*(width<=700?.6:1),iceRange=Math.max(0,8520/1080*panoramaHeight-width);
@@ -541,7 +563,7 @@ function animate(time){
  // Physics still uses the conservative timestep above.
  const previousScale=cameraScale;
  updateChapter();updateSceneMotion();updateEnvironment(Math.min(.3,frameSeconds));
- const moving=!!gesture?.moved||Math.abs(target-progress)>.0001||Math.abs(scrollVelocity)>.004;
+ const moving=!!gesture?.moved||Math.abs(target-progress)>.0001||Math.abs(finalOffset-finalGoal)>.05||Math.abs(scrollVelocity)>8;
  // Surface foam/reflections use the freshly scaled DOM bounds. Redraw them,
  // and the snow, in this same RAF instead of holding a previous 30/45Hz frame.
  // The stable underwater renderer and the resting budget stay unchanged.

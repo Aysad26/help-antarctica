@@ -1,0 +1,9 @@
+.primary-button{border-radius:13px}
+/* Only the final photographic foreground moves in the mobile vertical tail. */
+@media(max-width:700px){
+ .workers-wrap{width:82vw;right:9vw;bottom:90px;translate:0 calc(-1px * var(--final-scroll,0))}
+ .workers-wrap .species-label{top:0;right:5%}
+ .landing-station,.coast-terrain,.landing-dock{translate:0 calc(-1px * var(--final-scroll,0))}
+ .final-share{translate:0 calc(-1px * var(--final-scroll,0));left:50%!important;transform:translateX(-50%)}
+ .final-share:hover{transform:translateX(-50%) translateY(-2px)}
+}
