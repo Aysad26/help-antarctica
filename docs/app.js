@@ -1,7 +1,8 @@
+import {surfaceClipPolygon} from './surface-clip.mjs?v=47';
 import {createSnow} from './snow.mjs?v=32';
-import {createShoreRenderer} from './shore-renderer.mjs?v=32';
+import {createShoreRenderer} from './shore-renderer.mjs?v=47';
 import {createPassages} from './passages.mjs?v=32';
-import {shipApproachPose,shipContactAt} from './ship-approach.mjs?v=32';
+import {shipApproachPose,shipContactAt} from './ship-approach.mjs?v=48';
 import {createPenguinWater} from './penguin-water.mjs?v=46';
 import {createForegroundWater} from './foreground-water.mjs?v=42';
 import {createFloeContacts,paintFoamEdge} from './surface-contact.mjs?v=44';
@@ -11,15 +12,15 @@ import {sprayThresholds} from './breach-spray.mjs?v=32';
 import {staticSprayGeometry} from './static-spray.mjs?v=43';
 import {paintBreachRim} from './breach-rim.mjs?v=46';
 import {createAlbatross} from './albatross.mjs?v=32';
-import {createDepthWorld} from './ocean-depth.mjs?v=32';
+import {createDepthWorld} from './ocean-depth.mjs?v=47';
 import {createPugh} from './pugh.mjs?v=43';
 import {createStationLights} from './station-lights.mjs?v=32';
 import {createLivingOcean} from './living-ocean.mjs?v=41';
 import {paintContactReflection} from './contact-water.mjs?v=32';
 import {createWildlifeLabels} from './wildlife-labels.mjs?v=32';
 import {createPaintBudget,paintDeadline} from './rendering.mjs?v=32';
-import {depthPose,encounterOpacity,snowScreenX,holdAmount,surfaceY,surfaceBoundary,surfaceForegroundOpacity} from './expedition-motion.mjs?v=32';
-import {scenes,modals} from './story.mjs?v=44';
+import {depthPose,encounterOpacity,snowScreenX,holdAmount,surfaceY,surfaceBoundary,surfaceForegroundOpacity} from './expedition-motion.mjs?v=48';
+import {scenes,modals} from './story.mjs?v=47';
 import {createSoundscape} from './soundscape.mjs?v=32';
 import {clamp,lerp,smooth,breachPose,landingPose,introMaskGeometry,sceneStride,sceneTravel,travelProgress,oceanTiles,adjacentStop} from './motion.mjs?v=32';
 'use strict';
@@ -88,6 +89,8 @@ const wildlifeLabels=createWildlifeLabels($('#story'));
 const livingOcean=createLivingOcean($('#story'));
 const pugh=createPugh($('.swimmer-wrap'));
 const albatross=createAlbatross($('#albatrossPassage'));
+// Draw the italic information mark once, independent of installed fonts.
+for(const mark of $$('.info-i'))mark.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="14.2" cy="5" rx="1.8" ry="1.6"/><path d="M9 10.3c1.6-1.1 3.2-1.7 4.5-1.7 1.2 0 1.6.6 1.2 2L12 18c-.2.7-.1 1 .3 1 .6 0 1.3-.4 2.5-1.4l.8 1c-1.9 1.9-3.6 2.9-5.2 2.9-1.7 0-2.2-1.1-1.5-3.1l2.6-7.2c.2-.6.1-.8-.2-.8-.4 0-1 .3-1.6.7Z"/></svg>';
 $('#routeList [data-chapter="1"]').insertAdjacentHTML('afterend','<button class="route-item route-passage" data-chapter="1.5"><span aria-hidden="true">↝</span><span class="route-item-name">На крыльях ветра<small>Чернобровый альбатрос · пролёт</small></span><span aria-hidden="true">↗</span></button>');
 let dialogTrigger=null;
 function sourceLinks(items){return items.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`).join('');}
@@ -151,7 +154,7 @@ const penguinWater=createPenguinWater($('.penguins-wrap'));
 const floeContacts=createFloeContacts(['weddell','leopard','cormorant'].map(kind=>({image:$('.'+kind+'-wrap>.animal-image'),index:scenes.findIndex(s=>s.animal===kind)})));
 const shipApproach=$('#shipApproach'),shipElement=$('#landingShip'),shipImage=$('img',shipElement);
 let shipPose=null;
-let archContacts=[];
+let archContacts=[],archContactFraction=1;
 archWrap.insertAdjacentHTML('beforeend',`<div class="arch-contact-reflection" aria-hidden="true"><img src="${archImage.getAttribute('src')}" alt="" class="arch-reflected-image"></div>`);
 archImage.addEventListener('load',positionArchContact);
 const snow=createSnow(),middleSnow=$('#middleSnow'),mctx=middleSnow.getContext('2d');
@@ -348,13 +351,15 @@ function drawBreachFoam(){
 }
 function positionArchContact(){
  if(!archImage.complete||!archImage.naturalWidth)return;
- const r=archImage.getBoundingClientRect();
+ const r=archImage.getBoundingClientRect(),localHeight=archImage.offsetHeight;
+ if(!r.height||!localHeight)return;
  // One near-water plane, just before the original foreground occlusion.
- const cut=clamp(height*.875-r.top,0,r.height);
+ const cut=clamp((height*.875-r.top)*localHeight/r.height,0,localHeight);
+ archContactFraction=cut/localHeight;
  archWrap.style.setProperty('--arch-contact',`${cut}px`);
  const sample=document.createElement('canvas');sample.width=512;sample.height=1;
  const s=sample.getContext('2d',{willReadFrequently:true});
- const row=clamp(Math.round(cut/r.height*archImage.naturalHeight),0,archImage.naturalHeight-1);
+ const row=clamp(Math.round(archContactFraction*archImage.naturalHeight),0,archImage.naturalHeight-1);
  s.drawImage(archImage,0,row,archImage.naturalWidth,1,0,0,512,1);
  const pixels=s.getImageData(0,0,512,1).data;archContacts=[];let start=-1;
  for(let x=0;x<=512;x++){
@@ -365,21 +370,22 @@ function positionArchContact(){
 function drawArchWaterlap(){
  const photo=foamTextures.whale,distance=Math.abs(progress-archIndex);
  if(!started||distance>.95||!photo||!archContacts.length)return;
- const r=archImage.getBoundingClientRect(),y=height*.875;
+ const r=archImage.getBoundingClientRect(),y=r.top+r.height*archContactFraction;
  const alpha=encounterOpacity('icearch',Math.abs(sceneTravel(archIndex,width)-sceneTravel(progress,width))/sceneStride(width),depthAmount,false);
  ctx.save();
  for(const [a,b] of archContacts){
   const x=r.left+r.width*a,w=r.width*(b-a);
   if(x>width||x+w<0)continue;
-  // Three overlapping, shallow washes keep the photographic water edge broken.
+  // Use the dense lower foam of the photo, not its mostly empty upper spray.
+  // Broken shallow washes sit on the sea at each solid arch column.
   for(let i=0;i<3;i++){
    const shift=i*w*.3,bandWidth=w*(i===1?.42:.37);
-   ctx.globalAlpha=alpha*(i===1?.24:.31);
-   ctx.drawImage(photo,x+shift-3,y-2.4+(i%2)*.8,bandWidth+6,6);
+   ctx.globalAlpha=alpha*(i===1?.58:.68);
+   ctx.drawImage(photo,0,photo.height*.64,photo.width,photo.height*.36,x+shift-4,y-2.5+(i%2)*.8,bandWidth+8,7);
   }
   ctx.globalAlpha=alpha;
   const points=Array.from({length:Math.max(3,Math.ceil(w/3))},(_,i)=>({x:x+w*i/Math.max(2,Math.ceil(w/3)-1),y:y+Math.sin(i*.71)*.25}));
-  paintFoamEdge(ctx,points,reduced?0:elapsed,.78);
+  paintFoamEdge(ctx,points,reduced?0:elapsed,1.18);
  }
  ctx.restore();
 }
@@ -435,19 +441,20 @@ function updateSceneMotion(){
 function updateEnvironment(dt){
  const p=depthPose(progress),dusk=smooth((progress-(SHIP+.25))/1.75)*.8;
  const held=gesture&&!gesture.card?holdAmount((performance.now()-gesture.began)/1000,gesture.moved,reduced):0;
- zoomAmount+=(held-zoomAmount)*(1-Math.exp(-dt*5));
- document.documentElement.style.setProperty('--zoom',(1+zoomAmount*.15).toFixed(4));
+ zoomAmount+=(held-zoomAmount)*(1-Math.exp(-dt*(held>zoomAmount?13:19)));
+ document.documentElement.style.setProperty('--zoom',(1+zoomAmount*.25).toFixed(4));
  document.documentElement.style.setProperty('--dusk',dusk.toFixed(4));
  document.documentElement.style.setProperty('--depth',p.amount.toFixed(4));
  document.body.classList.toggle('camera-close',zoomAmount>.2);
  document.body.classList.toggle('underwater',p.amount>.65);
  document.body.classList.toggle('evening',dusk>.25);
+ const boundary=p.amount>0&&p.amount<1?surfaceBoundary(width,height,progress,elapsed):null;
+ const boundaryBox=boundary?$('#depthWorld').getBoundingClientRect():null;
  for(const water of [$('#foregroundWater'),$('#nearWaterBackdrop')]){
   water.style.opacity='1';water.style.display=surfaceForegroundOpacity(p.amount)?'':'none';water.style.visibility=surfaceForegroundOpacity(p.amount)?'visible':'hidden';
   if(p.amount>0&&p.amount<1){
-   const r=water.getBoundingClientRect(),points=['0px 0px',`${r.width}px 0px`];
-   for(let n=24;n>=0;n--){const x=r.width*n/24;points.push(`${x}px ${clamp(surfaceY(r.left+x,width,height,progress,elapsed)-r.top,0,r.height)}px`);}
-   water.style.clipPath=`polygon(${points.join(',')})`;
+   const r=water.getBoundingClientRect();
+   water.style.clipPath=surfaceClipPolygon(boundary,boundaryBox,width,height,r,water.offsetWidth,water.offsetHeight);
   }else water.style.clipPath='none';
  }
 
@@ -459,10 +466,8 @@ function updateEnvironment(dt){
   const x=sceneTravel(i,width)-sceneTravel(progress,width);
   el.style.visibility=Math.abs(x)<width*1.8?'visible':'hidden';
   if(p.amount>0&&p.amount<1&&Math.abs(i-progress)<1.4){
-   const r=a.getBoundingClientRect(),underwater=scenes[i].underwater,edge=underwater?r.height:0;
-   const points=[`0px ${edge}px`,` ${r.width}px ${edge}px`];
-   for(let n=16;n>=0;n--){const lx=r.width*n/16;points.push(`${lx}px ${clamp(surfaceY(r.left+lx,width,height,progress,elapsed)-r.top,0,r.height)}px`);}
-   a.style.clipPath=`polygon(${points.join(',')})`;
+   const r=a.getBoundingClientRect();
+   a.style.clipPath=surfaceClipPolygon(boundary,boundaryBox,width,height,r,a.offsetWidth,a.offsetHeight,scenes[i].underwater);
   }else a.style.clipPath='none';
  }
  // Keep the station in the distance while the final researchers enter foreground.
@@ -498,9 +503,16 @@ function animate(time){
  $('#distantIce').style.backgroundPositionX=`${-progress/LAST*distantRange}px`;
  $('#icebergs').style.backgroundPositionX=`${-progress/LAST*iceRange}px`;
  positionOcean(travel);$('#progressBar').style.width=`${progress/LAST*100}%`;const seek=travel/sceneTravel(LAST,width);$('#journeyScrubber').style.setProperty('--seek',`${seek*100}%`);if(!seekDragging)$('#journeyScrubber').value=seek*1000;$('#journeyScrubber').setAttribute('aria-valuetext',`${chapter+1} из ${scenes.length}`);
- updateChapter();updateSceneMotion();updateEnvironment(dt);
+ // During a plunge the opaque canvas and every CSS mask share this RAF's
+ // progress/time and the exact same sampled edge. The normal paint budget
+ // remains in effect for the fully submerged, stable background.
+ const frameDepth=depthPose(progress).amount;
+ if(frameDepth>0&&frameDepth<1)depthRenderer.paint(progress,elapsed,width,height,dpr);
+ // Camera close-up follows wall time even if scene drawing drops frames.
+ // Physics still uses the conservative timestep above.
+ updateChapter();updateSceneMotion();updateEnvironment(Math.min(.3,frameSeconds));
  const moving=!!gesture?.moved||Math.abs(target-progress)>.0001||Math.abs(scrollVelocity)>.004;
- const rate=paintBudget.rate(moving),deadline=paintDeadline(lastPaint,time,rate);
+ const rate=frameDepth>0&&frameDepth<1?60:paintBudget.rate(moving),deadline=paintDeadline(lastPaint,time,rate);
  if(deadline!==null){
   const began=performance.now();paint(Math.min(.06,(time-lastPaintAt)/1000));
   lastPaint=deadline;lastPaintAt=time;paintBudget.sample(performance.now()-began);

@@ -7,7 +7,7 @@ export function shipApproachPose(progress,width,height,arch,aspect=.5){
  const mobile=width<=700,t=smooth(progress-9);
  const startWidth=Math.min(width*(mobile?.33:.25),arch.width*.24);
  const endWidth=Math.min(width*(mobile?1.20:.68),height*1.4);
- const startX=arch.left+arch.width*.55-startWidth*.5;
+ const startX=arch.left+arch.width*(mobile?.38:.55)-startWidth*.5;
  const dock=landingPose(progress-4,width,mobile).dockX;
  const endX=dock+width*.006-endWidth*.98;
  const shipWidth=lerp(startWidth,endWidth,t),shipHeight=shipWidth*aspect;

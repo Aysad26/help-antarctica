@@ -143,7 +143,7 @@ export const scenes=[
   "cta": "Как охраняют колонии",
   "modal": "birds",
   "animal": "cormorant",
-  "image": "cormorant-v44.webp",
+  "image": "cormorant-v47.webp",
   "speciesModal": "birds",
   "note": "Антарктический баклан · между нырками",
   "mobileText": "Бакланам нужны кормовые участки в море и места гнездования на берегу. Правила посещения помогают уменьшать беспокойство птиц."

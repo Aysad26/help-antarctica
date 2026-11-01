@@ -1,0 +1,11 @@
+/* The visible disc is smaller; the mobile 44px touch target is unchanged. */
+#story .species-label .info-i{
+ background:var(--blue);color:#fff;border-color:var(--blue);
+ display:grid;place-items:center;
+}
+#story .species-label .info-i svg{width:88%;height:88%;fill:currentColor;stroke:none}
+@media(max-width:700px){
+ .weddell-wrap{bottom:2svh}
+ #story .species-label .info-i{width:26px;height:26px}
+ #story .species-label:active .info-i{background:#087ca9;border-color:#087ca9}
+}

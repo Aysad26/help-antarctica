@@ -1,4 +1,4 @@
-import {scenes,modals} from './story.mjs?v=44';
+import {scenes,modals} from './story.mjs?v=47';
 
 // Active scene/background/canvas/dialog assets only; old design variants are
 // deliberately excluded. Shared URLs reuse the browser's normal image cache.

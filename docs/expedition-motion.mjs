@@ -18,7 +18,7 @@ export function surfaceY(x,width,height,progress,time){
  const amplitude=(width<700?5:8)*(1+Math.sin(progress*2)*.2);
  return base+Math.sin(x/width*6.2+time*.65)*amplitude+Math.sin(x/width*17.3-time*.38)*amplitude*.3;
 }
-export function holdAmount(heldSeconds,moved,reduced){return moved||reduced?0:smooth((heldSeconds-.38)/.6);}
+export function holdAmount(heldSeconds,moved,reduced){return moved||reduced?0:smooth((heldSeconds-.12)/.22);}
 
 // Hands start at one-third of visible head height, then settle after the torso.
 export function pughPose(progress,spacing=1,arrivalPhase){

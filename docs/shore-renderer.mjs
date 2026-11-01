@@ -1,4 +1,5 @@
 import {shoreGroundX} from './motion.mjs?v=32';
+export const terrainAlpha=alpha=>alpha>=200?255:alpha;
 const outline=[[0,1],[0,.96],[.005,.92],[.009,.85],[.015,.82],[.018,.73],[.025,.70],[.029,.61],[.035,.59],[.04,.48],[.0465,.45],[.05,.38],[.06,.34],[.065,.26],[.075,.22],[.085,.14],[.1,.12],[.115,.05],[.13,0],[1,0],[1,1]];
 export function groundGeometry(progress,width,height){
  const mobile=width<=700,tileWidth=width*(mobile?2.55:1.8),h=height*(mobile?.36:.43);
@@ -14,7 +15,7 @@ export function createShoreRenderer(canvas){
   graded.width=photo.naturalWidth;graded.height=photo.naturalHeight;
   const g=graded.getContext('2d',{willReadFrequently:true});g.drawImage(photo,0,0);
   const pixels=g.getImageData(0,0,graded.width,graded.height),a=pixels.data;
-  for(let i=0;i<a.length;i+=4){a[i]=a[i]*1.06+2.04;a[i+1]=a[i+1]*1.08+1.275;a[i+2]=a[i+2]*1.10+.51;}
+  for(let i=0;i<a.length;i+=4){a[i]=a[i]*1.06+2.04;a[i+1]=a[i+1]*1.08+1.275;a[i+2]=a[i+2]*1.10+.51;a[i+3]=terrainAlpha(a[i+3]);}
   g.putImageData(pixels,0,0);ready=true;last='';
  };
  return {paint(progress,width,height,dpr){

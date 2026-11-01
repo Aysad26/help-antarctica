@@ -1,0 +1,5 @@
+/* Preserve the approved original compass logo as a static mark. */
+.brand-mark,.brand-mark *{animation:none!important;transition:none!important}
+/* New ice is already graded to the scene: retain the bird's white chest. */
+.cormorant-wrap>.animal-image{filter:saturate(.93) contrast(.97) blur(.16px)}
+@media(max-width:700px){.cormorant-wrap>.animal-image{filter:saturate(.93) contrast(.97) blur(.1px)}}
