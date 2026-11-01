@@ -1,6 +1,7 @@
 // Keep fractional frame deadlines. Resetting the clock to every RAF sample
 // would quantize 45 fps down to 30 and sometimes drop 30 fps down to 20.
-export function paintDeadline(previous,time,rate){
+export function paintDeadline(previous,time,rate,sync=false){
+ if(sync)return time;
  const interval=1000/rate,steps=Math.floor((time-previous+.5)/interval);
  return steps>0?previous+steps*interval:null;
 }

@@ -1,6 +1,10 @@
 // Reflections use the actual subject pixels and its measured water contact.
 // Compression maps that contact back onto itself; clipping keeps every reflected
 // pixel below the surface, without a coloured water patch or an ellipse.
+export function surfaceContactSpace(box,contact,zoom=1){
+ return {box:{left:0,top:0,width:box.width/zoom,height:box.height/zoom},
+  contact:{x:(contact.x-box.left)/zoom,y:(contact.y-box.top)/zoom,width:contact.width/zoom}};
+}
 export function reflectionGeometry(waterY,height,compression=.13){
  return {translateY:waterY*(1+compression),scaleY:-compression,
   top:waterY+.5,depth:Math.min(28,Math.max(8,height*.035))};

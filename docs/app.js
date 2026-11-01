@@ -2,7 +2,7 @@ import {surfaceClipPolygon} from './surface-clip.mjs?v=47';
 import {createSnow} from './snow.mjs?v=32';
 import {createShoreRenderer} from './shore-renderer.mjs?v=47';
 import {createPassages} from './passages.mjs?v=32';
-import {shipApproachPose,shipContactAt} from './ship-approach.mjs?v=48';
+import {shipApproachPose,shipContactAt,archLayoutBox} from './ship-approach.mjs?v=50';
 import {createPenguinWater} from './penguin-water.mjs?v=46';
 import {createForegroundWater} from './foreground-water.mjs?v=42';
 import {createFloeContacts,paintFoamEdge} from './surface-contact.mjs?v=44';
@@ -16,9 +16,9 @@ import {createDepthWorld} from './ocean-depth.mjs?v=47';
 import {createPugh} from './pugh.mjs?v=43';
 import {createStationLights} from './station-lights.mjs?v=32';
 import {createLivingOcean} from './living-ocean.mjs?v=41';
-import {paintContactReflection} from './contact-water.mjs?v=32';
+import {paintContactReflection,surfaceContactSpace} from './contact-water.mjs?v=50';
 import {createWildlifeLabels} from './wildlife-labels.mjs?v=32';
-import {createPaintBudget,paintDeadline} from './rendering.mjs?v=32';
+import {createPaintBudget,paintDeadline} from './rendering.mjs?v=50';
 import {depthPose,encounterOpacity,snowScreenX,holdAmount,surfaceY,surfaceBoundary,surfaceForegroundOpacity} from './expedition-motion.mjs?v=48';
 import {scenes,modals} from './story.mjs?v=47';
 import {createSoundscape} from './soundscape.mjs?v=32';
@@ -112,7 +112,7 @@ $('#previousButton').addEventListener('click',()=>go(adjacentStop(target,-1)));
 addEventListener('wheel',e=>{if(!started||$('.info-dialog[open]')||$('.route-dialog[open]'))return;if(e.target.closest('.story-card')&&e.target.closest('.story-card').scrollHeight>e.target.closest('.story-card').clientHeight+3){const el=e.target.closest('.story-card');if((e.deltaY>0&&el.scrollTop+el.clientHeight<el.scrollHeight-3)||(e.deltaY<0&&el.scrollTop>2))return;}e.preventDefault();const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;const norm=delta*(e.deltaMode===1?16:e.deltaMode===2?height:1);target=Math.max(0,Math.min(LAST,travelProgress(sceneTravel(target,width)+norm*width/(width<700?720:1050),width)));scrollVelocity=0;},{passive:false});
 let seekDragging=false;$('#journeyScrubber').addEventListener('pointerdown',()=>seekDragging=true);addEventListener('pointerup',()=>seekDragging=false);addEventListener('pointercancel',()=>seekDragging=false);
 $('#journeyScrubber').addEventListener('input',e=>{scrollVelocity=0;target=travelProgress(Number(e.target.value)/1000*sceneTravel(LAST,width),width);});
-let gesture=null,zoomAmount=0;
+let gesture=null,zoomAmount=0,cameraScale=1;
 function beginGesture(x,y,card){scrollVelocity=0;gesture={began:performance.now(),moved:false,x,y,initial:target,card,scrolling:false,lastProgress:target,lastTime:performance.now(),velocity:0};}
 function moveGesture(x,y,event){
   if(!gesture||!started)return;
@@ -326,8 +326,12 @@ function drawBreachFoam(){
  for(const layer of breachLayers){
   const pose=currentBreachPose(layer.kind),photo=foamTextures.spray||foamTextures[layer.kind];
   if(!photo||pose.phase<.15||Math.abs(progress-layer.index)>1)continue;
-  const c=breachContact(layer,pose,reduced?breachPose(layer.kind,layer.index).angle:pose.angle);
-  const box=layer.window.getBoundingClientRect();
+  const screenContact=breachContact(layer,pose,reduced?breachPose(layer.kind,layer.index).angle:pose.angle);
+  const screenBox=layer.window.getBoundingClientRect();
+  const {box,contact:c}=surfaceContactSpace(screenBox,screenContact,cameraScale);
+  // Foam grain belongs to the animal's local water plane. Scaling that plane
+  // must not regenerate a new screen-pixel pattern at every zoom step.
+  ctx.save();ctx.translate(screenBox.left,screenBox.top);ctx.scale(cameraScale,cameraScale);
   const visible=1-smooth((Math.abs(progress-layer.index)-.55)/.4);
   if(layer.reflection){
    paintContactReflection(ctx,layer.reflection,box,c.y,.105*(1-depthAmount)*visible*smooth((pose.phase-.2)/.5),elapsed);
@@ -337,16 +341,17 @@ function drawBreachFoam(){
    paintBreachRim(ctx,photo,layer.kind,c,width,box.width,pose.phase);
    const count=Math.max(10,Math.ceil(c.width/4));
    const rim=Array.from({length:count},(_,i)=>({x:c.x-c.width*.5+c.width*i/(count-1),y:c.y}));
-   paintFoamEdge(ctx,rim,reduced?0:elapsed,.48);ctx.restore();continue;
+   paintFoamEdge(ctx,rim,reduced?0:elapsed,.48);ctx.restore();ctx.restore();continue;
   }
   if(orcaStaticSpray.complete&&orcaStaticSpray.naturalWidth&&layer.contact){
    const spray=staticSprayGeometry(c,box.width,width,pose.phase);
-   ctx.save();ctx.beginPath();ctx.rect(0,spray.clipTop,width,spray.clipBottom-spray.clipTop);ctx.clip();
+   ctx.save();ctx.beginPath();ctx.rect(-screenBox.left/cameraScale,spray.clipTop,width/cameraScale,spray.clipBottom-spray.clipTop);ctx.clip();
    ctx.drawImage(orcaStaticSpray,spray.x,spray.y,spray.width,spray.height);ctx.restore();
   }
   paintBreachRim(ctx,photo,layer.kind,c,width,box.width,pose.phase);
   const rim=Array.from({length:Math.max(10,Math.ceil(c.width/3))},(_,i)=>({x:c.x-c.width*.6+c.width*1.2*i/Math.max(9,Math.ceil(c.width/3)-1),y:c.y+.4}));
   paintFoamEdge(ctx,rim,reduced?0:elapsed,.8);
+  ctx.restore();
  }
 }
 function positionArchContact(){
@@ -370,12 +375,12 @@ function positionArchContact(){
 function drawArchWaterlap(){
  const photo=foamTextures.whale,distance=Math.abs(progress-archIndex);
  if(!started||distance>.95||!photo||!archContacts.length)return;
- const r=archImage.getBoundingClientRect(),y=r.top+r.height*archContactFraction;
+ const r=archImage.getBoundingClientRect(),localWidth=r.width/cameraScale,y=r.height/cameraScale*archContactFraction;
  const alpha=encounterOpacity('icearch',Math.abs(sceneTravel(archIndex,width)-sceneTravel(progress,width))/sceneStride(width),depthAmount,false);
- ctx.save();
+ ctx.save();ctx.translate(r.left,r.top);ctx.scale(cameraScale,cameraScale);
  for(const [a,b] of archContacts){
-  const x=r.left+r.width*a,w=r.width*(b-a);
-  if(x>width||x+w<0)continue;
+  const x=localWidth*a,w=localWidth*(b-a);
+  if(r.left+r.width*a>width||r.left+r.width*b<0)continue;
   // Use the dense lower foam of the photo, not its mostly empty upper spray.
   // Broken shallow washes sit on the sea at each solid arch column.
   for(let i=0;i<3;i++){
@@ -427,7 +432,7 @@ function updateSceneMotion(){
   landing.style.opacity='1';landing.style.visibility=progress>8.5?'visible':'hidden';
   landing.dataset.docked=String(p.docked);
   stationLights.paint(progress-SHIP);
-  shipPose=shipApproachPose(progress,width,height,archImage.getBoundingClientRect(),shipImage.naturalWidth?shipImage.naturalHeight/shipImage.naturalWidth:.5);
+  shipPose=shipApproachPose(progress,width,height,archLayoutBox(archImage.getBoundingClientRect(),cameraScale),shipImage.naturalWidth?shipImage.naturalHeight/shipImage.naturalWidth:.5);
   shipApproach.style.visibility=started&&shipPose.visible?'visible':'hidden';
   shipElement.style.width=`${shipPose.width}px`;
   shipElement.style.transform=`translate3d(${shipPose.x}px,${shipPose.y}px,0)`;
@@ -442,7 +447,8 @@ function updateEnvironment(dt){
  const p=depthPose(progress),dusk=smooth((progress-(SHIP+.25))/1.75)*.8;
  const held=gesture&&!gesture.card?holdAmount((performance.now()-gesture.began)/1000,gesture.moved,reduced):0;
  zoomAmount+=(held-zoomAmount)*(1-Math.exp(-dt*(held>zoomAmount?13:19)));
- document.documentElement.style.setProperty('--zoom',(1+zoomAmount*.25).toFixed(4));
+ cameraScale=Number((1+zoomAmount*.15).toFixed(4));
+ document.documentElement.style.setProperty('--zoom',cameraScale);
  document.documentElement.style.setProperty('--dusk',dusk.toFixed(4));
  document.documentElement.style.setProperty('--depth',p.amount.toFixed(4));
  document.body.classList.toggle('camera-close',zoomAmount>.2);
@@ -510,9 +516,14 @@ function animate(time){
  if(frameDepth>0&&frameDepth<1)depthRenderer.paint(progress,elapsed,width,height,dpr);
  // Camera close-up follows wall time even if scene drawing drops frames.
  // Physics still uses the conservative timestep above.
+ const previousScale=cameraScale;
  updateChapter();updateSceneMotion();updateEnvironment(Math.min(.3,frameSeconds));
  const moving=!!gesture?.moved||Math.abs(target-progress)>.0001||Math.abs(scrollVelocity)>.004;
- const rate=frameDepth>0&&frameDepth<1?60:paintBudget.rate(moving),deadline=paintDeadline(lastPaint,time,rate);
+ // Surface foam/reflections use the freshly scaled DOM bounds. Redraw them,
+ // and the snow, in this same RAF instead of holding a previous 30/45Hz frame.
+ // The stable underwater renderer and the resting budget stay unchanged.
+ const syncSurfaceZoom=frameDepth<.999&&cameraScale!==previousScale;
+ const rate=frameDepth>0&&frameDepth<1?60:paintBudget.rate(moving),deadline=paintDeadline(lastPaint,time,rate,syncSurfaceZoom);
  if(deadline!==null){
   const began=performance.now();paint(Math.min(.06,(time-lastPaintAt)/1000));
   lastPaint=deadline;lastPaintAt=time;paintBudget.sample(performance.now()-began);

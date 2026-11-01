@@ -1,5 +1,12 @@
 import {clamp,lerp,smooth,landingPose} from './motion.mjs?v=32';
 
+// The arch has a 55%/80% CSS scale origin. Recover its layout before using it
+// as the ship's anchor; the ship's own parent applies the camera zoom once.
+export function archLayoutBox(rect,zoom=1){
+ const width=rect.width/zoom,height=rect.height/zoom;
+ return {left:rect.left+(rect.width-width)*.55,top:rect.top+(rect.height-height)*.8,width,height};
+}
+
 // The ship is registered to the opening in the actual, responsive arch image.
 // Its path lives in the same world coordinates as the pier, so scrolling back
 // retraces the approach and a moored ship cannot slide against the landing.
