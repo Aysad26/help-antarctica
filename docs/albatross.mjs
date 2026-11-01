@@ -1,4 +1,5 @@
 import {sceneTravel,clamp,smooth} from './motion.mjs?v=32';
+import {ui} from './i18n.mjs?v=51';
 
 // The bird belongs to the near air layer. Progress determines its diagonal
 // course; time only adds a tiny banking correction while it holds the wind.
@@ -19,9 +20,9 @@ export function albatrossPose(progress,width,height,time=0,reduced=false){
 
 export function createAlbatross(root){
  const bird=root.querySelector('img'),label=root.querySelector('button');
- const far=document.createElement('img');far.className='albatross-flight albatross-far';far.src='assets/albatross-fish-v32.webp';far.alt='Второй альбатрос с небольшой рыбой в клюве летит в противоположную сторону';root.prepend(far);
+ const far=document.createElement('img');far.className='albatross-flight albatross-far';far.src='assets/albatross-fish-v32.webp';far.alt=ui.albatrossFishAlt;root.prepend(far);
  let wasActive=false;
- return {paint(progress,time,width,height,reduced,started){
+ return {localize(){far.alt=ui.albatrossFishAlt;},paint(progress,time,width,height,reduced,started){
   const active=started&&progress>.9&&progress<2.3;
   if(!active){if(wasActive){root.style.visibility='hidden';root.inert=true;root.setAttribute('aria-hidden','true');}wasActive=false;return;}
   const p=albatrossPose(progress,width,height,time,reduced);

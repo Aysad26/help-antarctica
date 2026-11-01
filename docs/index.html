@@ -43,10 +43,11 @@
   <link rel="stylesheet" href="journey-v44.css?v=44">
   <link rel="stylesheet" href="journey-v46.css?v=46">
   <link rel="stylesheet" href="journey-v47.css?v=47">
-  <script src="preloader.mjs?v=47" type="module"></script>
+  <script src="preloader.mjs?v=51" type="module"></script>
   <link rel="stylesheet" href="journey-v48.css?v=48">
   <link rel="stylesheet" href="journey-v50.css?v=50">
-  <script src="app.js?v=50" type="module"></script>
+  <link rel="stylesheet" href="journey-v51.css?v=51">
+  <script src="app.js?v=51" type="module"></script>
 </head>
 <body class="prestart is-loading">
   <div class="site-preloader" id="sitePreloader" role="status" aria-label="Загружаем путешествие">
@@ -89,6 +90,7 @@
     </button>
     <div class="header-center" id="headerCenter">Почувствовать, чтобы сохранить</div>
     <div class="header-actions">
+      <button id="languageSwitch" class="language-switch" type="button" aria-label="Переключить на английский"><span data-language="ru" class="selected">RU</span><span class="language-divider" aria-hidden="true">/</span><span data-language="en">EN</span></button>
     <button class="pause-button" id="motionToggle" aria-label="Приостановить анимации" aria-pressed="false"><span id="motionIcon" class="pause-glyph" aria-hidden="true"></span><span class="pause-label">Движение</span></button>
       <button class="icon-button snow-control" id="snowToggle" title="Выключить снег" aria-label="Выключить снег" aria-pressed="true"><span aria-hidden="true">❄</span></button>
       <button class="icon-button sound-control" id="soundToggle" title="Включить звук путешествия" aria-label="Включить звук путешествия" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path class="sound-wave" d="M16 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14"/><path class="sound-slash" d="m17 10 5 5m0-5-5 5"/></svg></button>

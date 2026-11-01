@@ -1,7 +1,7 @@
 import {surfaceClipPolygon} from './surface-clip.mjs?v=47';
 import {createSnow} from './snow.mjs?v=32';
 import {createShoreRenderer} from './shore-renderer.mjs?v=47';
-import {createPassages} from './passages.mjs?v=32';
+import {createPassages} from './passages.mjs?v=51';
 import {shipApproachPose,shipContactAt,archLayoutBox} from './ship-approach.mjs?v=50';
 import {createPenguinWater} from './penguin-water.mjs?v=46';
 import {createForegroundWater} from './foreground-water.mjs?v=42';
@@ -11,7 +11,7 @@ import {scrollArrivalPhase,easedCamera} from './arrival-motion.mjs?v=32';
 import {sprayThresholds} from './breach-spray.mjs?v=32';
 import {staticSprayGeometry} from './static-spray.mjs?v=43';
 import {paintBreachRim} from './breach-rim.mjs?v=46';
-import {createAlbatross} from './albatross.mjs?v=32';
+import {createAlbatross} from './albatross.mjs?v=51';
 import {createDepthWorld} from './ocean-depth.mjs?v=47';
 import {createPugh} from './pugh.mjs?v=43';
 import {createStationLights} from './station-lights.mjs?v=32';
@@ -20,10 +20,14 @@ import {paintContactReflection,surfaceContactSpace} from './contact-water.mjs?v=
 import {createWildlifeLabels} from './wildlife-labels.mjs?v=32';
 import {createPaintBudget,paintDeadline} from './rendering.mjs?v=50';
 import {depthPose,encounterOpacity,snowScreenX,holdAmount,surfaceY,surfaceBoundary,surfaceForegroundOpacity} from './expedition-motion.mjs?v=48';
-import {scenes,modals} from './story.mjs?v=47';
+import {scenes as russianScenes,modals as russianModals} from './story.mjs?v=47';
+import {scenes as englishScenes,modals as englishModals} from './story.en.mjs?v=51';
+import {language,ui,text,setLanguage,applyStaticLanguage,languageURL} from './i18n.mjs?v=51';
 import {createSoundscape} from './soundscape.mjs?v=32';
 import {clamp,lerp,smooth,breachPose,landingPose,introMaskGeometry,sceneStride,sceneTravel,travelProgress,oceanTiles,adjacentStop} from './motion.mjs?v=32';
 'use strict';
+let scenes=language==='en'?englishScenes:russianScenes,modals=language==='en'?englishModals:russianModals;
+applyStaticLanguage();
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const ASSET='assets/';
@@ -33,13 +37,13 @@ const LAST=scenes.length-1,SHIP=scenes.findIndex(s=>s.animal==='ship'),BIRDS=sce
 const arrow='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>';
 const track=$('#sceneTrack');
 track.innerHTML=scenes.map((s,i)=>`<section class="scene ${s.animal}-scene ${i===0?'active':''}" aria-labelledby="sceneTitle${i}" data-index="${i}" ${i?'inert aria-hidden="true"':''}>
- <article class="story-card"><div class="card-eyebrow">${String(i+1).padStart(2,'0')} / ${s.eyebrow.replace(/^\d+ \/ /,'')}</div><h2 id="sceneTitle${i}">${s.title}</h2><p class="card-full">${s.text}</p><p class="card-full">${s.text2}</p><p class="card-mobile">${s.mobileText}</p><div class="card-divider"></div><p class="card-fact">${s.fact}</p><div class="card-actions"><button class="card-link" data-modal="${s.modal}">${s.cta}${arrow}</button>${i===LAST?'<button class="card-secondary" id="shareButton">Поделиться</button>':''}</div></article>
+ <article class="story-card"><div class="card-eyebrow">${String(i+1).padStart(2,'0')} / ${s.eyebrow.replace(/^\d+ \/ /,'')}</div><h2 id="sceneTitle${i}">${s.title}</h2><p class="card-full">${s.text}</p><p class="card-full">${s.text2}</p><p class="card-mobile">${s.mobileText}</p><div class="card-divider"></div><p class="card-fact">${s.fact}</p><div class="card-actions"><button class="card-link" data-modal="${s.modal}">${s.cta}${arrow}</button>${i===LAST?`<button class="card-secondary" id="shareButton">${ui.share}</button>`:''}</div></article>
  ${i===LAST?'<div class="shore-foreground" aria-hidden="true"></div>':''}
  <div class="animal-wrap ${s.animal}-wrap" ${['ship','station'].includes(s.animal)?'data-landing-anchor':''}>
- ${s.splash?`<div class="breach-window"><div class="breach-orbit"><img class="animal-image" src="${ASSET+s.image}" alt="${s.subject}" decoding="async"></div></div>`:s.animal==='swimmer'?`<img class="animal-image swimmer-original" src="${ASSET+s.image}" alt="Льюис Пью плывёт в холодной воде">`:!['ship','station'].includes(s.animal)?`<img class="animal-image" src="${ASSET+s.image}" alt="${s.subject}" decoding="async">`:''}
+ ${s.splash?`<div class="breach-window"><div class="breach-orbit"><img class="animal-image" src="${ASSET+s.image}" alt="${s.subject}" decoding="async"></div></div>`:s.animal==='swimmer'?`<img class="animal-image swimmer-original" src="${ASSET+s.image}" alt="${ui.swimmerAlt}">`:!['ship','station'].includes(s.animal)?`<img class="animal-image" src="${ASSET+s.image}" alt="${s.subject}" decoding="async">`:''}
  ${s.animal==='krill'?'<img class="krill-distant" src="assets/krill-v5.webp" alt="" aria-hidden="true"><img class="krill-distant second" src="assets/krill-v5.webp" alt="" aria-hidden="true">':''}${s.animal==='jellyfish'?'<img class="jelly-distant" src="assets/jellyfish-v5.webp" alt="" aria-hidden="true"><img class="jelly-distant second" src="assets/jellyfish-v5.webp" alt="" aria-hidden="true">':''}
  ${s.animal==='ship'?'<div class="ship-wake" aria-hidden="true"></div>':''}${s.animal==='station'?'<div class="station-glow" aria-hidden="true"></div>':''}
- <button class="species-label" data-modal="${s.speciesModal}" aria-label="${s.subject}: открыть справку" aria-haspopup="dialog" aria-controls="infoDialog"><span class="info-i" aria-hidden="true">i</span><span class="species-name" aria-hidden="true">${s.subject}</span></button>
+ <button class="species-label" data-modal="${s.speciesModal}" aria-label="${text('infoLabel',{subject:s.subject})}" aria-haspopup="dialog" aria-controls="infoDialog"><span class="info-i" aria-hidden="true">i</span><span class="species-name" aria-hidden="true">${s.subject}</span></button>
  </div>
  <div class="scene-note" aria-hidden="true">${s.note}</div></section>`).join('');
 // The ship is a visual pause; its sourced detail remains available as a hint.
@@ -48,10 +52,10 @@ shipChapter.querySelector('.story-card').remove();
 // Elephant seal is another quiet encounter; its small sourced hint remains.
 const elephantChapter=track.querySelector('.leopard-scene');
 elephantChapter.querySelector('.story-card').remove();
-elephantChapter.removeAttribute('aria-labelledby');elephantChapter.setAttribute('aria-label','Южный морской слон');
-shipChapter.removeAttribute('aria-labelledby');shipChapter.setAttribute('aria-label','На борту экспедиции');
-shipChapter.insertAdjacentHTML('beforeend','<button class="species-label ship-info" data-modal="ship" aria-label="Исследовательское судно: открыть справку" aria-haspopup="dialog" aria-controls="infoDialog"><span class="info-i" aria-hidden="true">i</span><span class="species-name" aria-hidden="true">Исследовательское судно</span></button>');
-$('#chapterNav').innerHTML=scenes.map((s,i)=>`<button class="chapter-dot" data-chapter="${i}" data-label="${s.name}" aria-label="Глава ${i+1}: ${s.name}" ${i===0?'aria-current="step"':''}></button>`).join('');
+elephantChapter.removeAttribute('aria-labelledby');elephantChapter.setAttribute('aria-label',ui.elephant);
+shipChapter.removeAttribute('aria-labelledby');shipChapter.setAttribute('aria-label',ui.expedition);
+shipChapter.insertAdjacentHTML('beforeend',`<button class="species-label ship-info" data-modal="ship" aria-label="${text('infoLabel',{subject:ui.researchShip})}" aria-haspopup="dialog" aria-controls="infoDialog"><span class="info-i" aria-hidden="true">i</span><span class="species-name" aria-hidden="true">${ui.researchShip}</span></button>`);
+$('#chapterNav').innerHTML=scenes.map((s,i)=>`<button class="chapter-dot" data-chapter="${i}" data-label="${s.name}" aria-label="${text('chapterLabel',{number:i+1,name:s.name})}" ${i===0?'aria-current="step"':''}></button>`).join('');
 $('#routeList').innerHTML=scenes.map((s,i)=>`<button class="route-item" data-chapter="${i}"><span>${String(i+1).padStart(2,'0')}</span><span class="route-item-name">${s.name}<small>${s.subject}</small></span><span aria-hidden="true">↗</span></button>`).join('');
 
 
@@ -91,7 +95,7 @@ const pugh=createPugh($('.swimmer-wrap'));
 const albatross=createAlbatross($('#albatrossPassage'));
 // A compact upright serif mark, independent of installed fonts.
 for(const mark of $$('.info-i'))mark.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="5.3" r="1.45"/><path d="M8.8 9.2h4.3v9.1c0 .8.4 1.1 1.2 1.1h1v1H8.7v-1h1c.8 0 1.2-.3 1.2-1.1v-6.9c0-.8-.4-1.1-1.2-1.1h-.9Z"/></svg>';
-$('#routeList [data-chapter="1"]').insertAdjacentHTML('afterend','<button class="route-item route-passage" data-chapter="1.5"><span aria-hidden="true">↝</span><span class="route-item-name">На крыльях ветра<small>Чернобровый альбатрос · пролёт</small></span><span aria-hidden="true">↗</span></button>');
+$('#routeList [data-chapter="1"]').insertAdjacentHTML('afterend',`<button id="albatrossRoute" class="route-item route-passage" data-chapter="1.5"><span aria-hidden="true">↝</span><span class="route-item-name">${ui.albatrossRoute}<small>${ui.albatrossRouteDetail}</small></span><span aria-hidden="true">↗</span></button>`);
 let dialogTrigger=null;
 function sourceLinks(items){return items.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`).join('');}
 function openModal(id,trigger){const data=modals[id];if(!data)return;dialogTrigger=trigger||document.activeElement;if($('#routeDialog').open)$('#routeDialog').close();$('#modalContent').innerHTML=`<div class="dialog-eyebrow">${data.eyebrow}</div><h2 id="modalTitle">${data.title}</h2>${data.latin?`<p class="dialog-latin">${data.latin}</p>`:''}${data.image?`<figure class="modal-photo"><img class="modal-visual" src="${ASSET+data.image}" alt="${data.photoAlt||data.title}" decoding="async">${data.photoCaption?`<figcaption>${data.photoCaption}</figcaption>`:''}</figure>`:''}<div class="modal-body">${data.body.map(t=>`<p>${t}</p>`).join('')}<div class="modal-fact">${data.fact}</div>${data.archive?`<a class="archive-link" href="${data.archive[1]}" target="_blank" rel="noopener noreferrer">${data.archive[0]} ↗</a>`:''}${data.footnote?`<p class="modal-footnote">${data.footnote}</p>`:''}<div class="modal-source">${sourceLinks(data.sources)}</div></div>`;$('#infoDialog').showModal();$('#infoDialog').scrollTop=0;document.body.classList.add('modal-open');$('#closeDialog').focus({preventScroll:true});}
@@ -103,9 +107,9 @@ document.addEventListener('click',e=>{const m=e.target.closest('[data-modal]');i
 $('#menuButton').addEventListener('click',()=>{$('#routeDialog').showModal();document.body.classList.add('modal-open');});
 $('#closeRoute').addEventListener('click',()=>{$('#routeDialog').close();document.body.classList.remove('modal-open');$('#menuButton').focus();});
 $('#routeDialog').addEventListener('cancel',()=>document.body.classList.remove('modal-open'));
-function start(n=0){if(started||opening)return;opening=true;target=progress=n;chapter=n;positionIntroMask();$('#startButton').disabled=true;$('#intro').classList.add('opening');$('#intro').inert=true;$('#story').inert=false;updateChapter(true);setTimeout(()=>{started=true;opening=false;$('#intro').classList.add('hidden');$('#journeyUI').classList.add('visible');$('#journeyUI').inert=false;$('#headerCenter').textContent='Антарктика ближе, чем кажется';$('#story').focus({preventScroll:true});document.body.classList.remove('prestart');},reduced?30:1550);}
+function start(n=0){if(started||opening)return;opening=true;target=progress=n;chapter=n;positionIntroMask();$('#startButton').disabled=true;$('#intro').classList.add('opening');$('#intro').inert=true;$('#story').inert=false;updateChapter(true);setTimeout(()=>{started=true;opening=false;$('#intro').classList.add('hidden');$('#journeyUI').classList.add('visible');$('#journeyUI').inert=false;$('#headerCenter').textContent=ui.taglineJourney;$('#story').focus({preventScroll:true});document.body.classList.remove('prestart');},reduced?30:1550);}
 $('#startButton').addEventListener('click',()=>start());
-$('#homeButton').addEventListener('click',()=>{if(!started)return;started=false;opening=false;document.body.classList.add('prestart');target=progress=chapter=0;$('#intro').classList.remove('opening','hidden');$('#intro').inert=false;$('#startButton').disabled=false;$('#journeyUI').classList.remove('visible');$('#journeyUI').inert=true;$('#story').inert=true;$('#headerCenter').textContent='Почувствовать, чтобы сохранить';scrollVelocity=0;updateChapter(true);positionIntroMask();$('#startButton').focus({preventScroll:true});});
+$('#homeButton').addEventListener('click',()=>{if(!started)return;started=false;opening=false;document.body.classList.add('prestart');target=progress=chapter=0;$('#intro').classList.remove('opening','hidden');$('#intro').inert=false;$('#startButton').disabled=false;$('#journeyUI').classList.remove('visible');$('#journeyUI').inert=true;$('#story').inert=true;$('#headerCenter').textContent=ui.taglineIntro;scrollVelocity=0;updateChapter(true);positionIntroMask();$('#startButton').focus({preventScroll:true});});
 function go(n){scrollVelocity=0;target=Math.max(0,Math.min(scenes.length-1,n));if(reduced){progress=target;updateChapter();}}
 $('#nextButton').addEventListener('click',()=>go(adjacentStop(target,1)));
 $('#previousButton').addEventListener('click',()=>go(adjacentStop(target,-1)));
@@ -143,7 +147,7 @@ story.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')finishGesture(
 story.addEventListener('pointercancel',e=>{if(e.pointerType!=='touch')finishGesture();});
 addEventListener('keydown',e=>{if(!started||$('dialog[open]')||e.altKey||e.ctrlKey||e.metaKey)return;if(e.target.closest('button,a,input,textarea,select'))return;const map={ArrowRight:1,ArrowDown:1,PageDown:1,ArrowLeft:-1,ArrowUp:-1,PageUp:-1};if(map[e.key]){e.preventDefault();go(adjacentStop(target,map[e.key]));}if(e.key==='Home'){e.preventDefault();go(0);}if(e.key==='End'){e.preventDefault();go(LAST);}});
 let chapterUiKey='';
-function updateChapter(force=false){const passage=[{stop:.5,name:'Шлюпка'},{stop:1.5,name:'Альбатросы'},{stop:3.5,name:'Медузы'},{stop:4.5,name:'Крачка'}].find(s=>Math.abs(sceneTravel(progress,width)-sceneTravel(s.stop,width))<width*.36);const next=Math.max(0,Math.min(LAST,Math.round(progress)));const key=`${next}:${passage?.stop??-1}:${progress<.001}:${progress>LAST-.001}`;if(key===chapterUiKey&&!force)return;chapterUiKey=key;chapter=next;sceneEls.forEach((el,i)=>{if(i===chapter&&!el.classList.contains('active')){const card=$('.story-card',el);if(card)card.scrollTop=0;}el.classList.toggle('active',i===chapter&&!passage);el.inert=i!==chapter||!!passage;el.setAttribute('aria-hidden',String(i!==chapter||!!passage));});$$('.chapter-dot').forEach((b,i)=>i===chapter&&!passage?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current'));$('#pageCounter').innerHTML=passage?`↝ <i>${passage.name}</i>`:`${String(chapter+1).padStart(2,'0')} <i>/ ${String(scenes.length).padStart(2,'0')}</i>`;$('#previousButton').disabled=progress<.001;$('#nextButton').disabled=progress>LAST-.001;}
+function updateChapter(force=false){const passage=[.5,1.5,3.5,4.5].map((stop,i)=>({stop,name:ui.passageNames[i]})).find(s=>Math.abs(sceneTravel(progress,width)-sceneTravel(s.stop,width))<width*.36);const next=Math.max(0,Math.min(LAST,Math.round(progress)));const key=`${next}:${passage?.stop??-1}:${progress<.001}:${progress>LAST-.001}`;if(key===chapterUiKey&&!force)return;chapterUiKey=key;chapter=next;sceneEls.forEach((el,i)=>{if(i===chapter&&!el.classList.contains('active')){const card=$('.story-card',el);if(card)card.scrollTop=0;}el.classList.toggle('active',i===chapter&&!passage);el.inert=i!==chapter||!!passage;el.setAttribute('aria-hidden',String(i!==chapter||!!passage));});$$('.chapter-dot').forEach((b,i)=>i===chapter&&!passage?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current'));$('#pageCounter').innerHTML=passage?`↝ <i>${passage.name}</i>`:`${String(chapter+1).padStart(2,'0')} <i>/ ${String(scenes.length).padStart(2,'0')}</i>`;$('#previousButton').disabled=progress<.001;$('#nextButton').disabled=progress>LAST-.001;}
 
 const fx=$('#effectsCanvas'),ctx=fx.getContext('2d',{alpha:true}),water=$('#waterCanvas'),wctx=water.getContext('2d',{alpha:true});
 const depthRenderer=createDepthWorld($('#depthWorld'));
@@ -173,8 +177,8 @@ function splashAt(x,y,power=1,kind='breach'){
   for(let i=0;i<count;i++)droplets.push({x:x+(Math.random()-.5)*(bird?12:42),y:y+Math.random()*3,vx:(Math.random()-.5)*(bird?90:70)*power,vy:-((bird?50:24)+Math.random()*(bird?100:60))*power,r:bird?.6+Math.random()*1.1:.3+Math.random()*1.1,age:0,life:bird?.65+Math.random()*.45:.4+Math.random()*.4,travel});
   if(droplets.length>130)droplets=droplets.slice(-130);
 }
-$('#snowToggle').addEventListener('click',()=>{snowOn=!snowOn;$('#snowToggle').setAttribute('aria-pressed',snowOn);$('#snowToggle').setAttribute('aria-label',snowOn?'Выключить снег':'Включить снег');$('#snowToggle').title=snowOn?'Выключить снег':'Включить снег';});
-$('#motionToggle').addEventListener('click',()=>{paused=!paused;document.body.classList.toggle('motion-paused',paused);$('#motionToggle').setAttribute('aria-pressed',paused);$('#motionToggle').setAttribute('aria-label',paused?'Продолжить анимации':'Приостановить анимации');$('#motionIcon').classList.toggle('is-play',paused);soundscape.suspend(paused||document.hidden);});
+$('#snowToggle').addEventListener('click',()=>{snowOn=!snowOn;$('#snowToggle').setAttribute('aria-pressed',snowOn);$('#snowToggle').setAttribute('aria-label',snowOn?ui.snowOff:ui.snowOn);$('#snowToggle').title=snowOn?ui.snowOff:ui.snowOn;});
+$('#motionToggle').addEventListener('click',()=>{paused=!paused;document.body.classList.toggle('motion-paused',paused);$('#motionToggle').setAttribute('aria-pressed',paused);$('#motionToggle').setAttribute('aria-label',paused?ui.resume:ui.pause);$('#motionIcon').classList.toggle('is-play',paused);soundscape.suspend(paused||document.hidden);});
 reducedQuery.addEventListener('change',e=>{reduced=e.matches;document.body.classList.toggle('reduced-motion',reduced);});
 function drawBird(x,y,size,phase,opacity){ctx.save();ctx.translate(x,y);ctx.strokeStyle=`rgba(249,254,255,${opacity})`;ctx.lineWidth=size*.1;ctx.lineCap='round';const flap=Math.sin(phase)*size*.4;ctx.beginPath();ctx.moveTo(-size,flap);ctx.quadraticCurveTo(-size*.4,-size*.15,0,0);ctx.quadraticCurveTo(size*.4,-size*.15,size,flap);ctx.stroke();ctx.restore();}
 function paint(dt){
@@ -508,7 +512,7 @@ function animate(time){
  const distantRange=Math.max(0,8520/1080*height*(width<=700?.3:.42)-width*1.2);
  $('#distantIce').style.backgroundPositionX=`${-progress/LAST*distantRange}px`;
  $('#icebergs').style.backgroundPositionX=`${-progress/LAST*iceRange}px`;
- positionOcean(travel);$('#progressBar').style.width=`${progress/LAST*100}%`;const seek=travel/sceneTravel(LAST,width);$('#journeyScrubber').style.setProperty('--seek',`${seek*100}%`);if(!seekDragging)$('#journeyScrubber').value=seek*1000;$('#journeyScrubber').setAttribute('aria-valuetext',`${chapter+1} из ${scenes.length}`);
+ positionOcean(travel);$('#progressBar').style.width=`${progress/LAST*100}%`;const seek=travel/sceneTravel(LAST,width);$('#journeyScrubber').style.setProperty('--seek',`${seek*100}%`);if(!seekDragging)$('#journeyScrubber').value=seek*1000;$('#journeyScrubber').setAttribute('aria-valuetext',text('chapterCount',{number:chapter+1,total:scenes.length}));
  // During a plunge the opaque canvas and every CSS mask share this RAF's
  // progress/time and the exact same sampled edge. The normal paint budget
  // remains in effect for the fully submerged, stable background.
@@ -532,9 +536,47 @@ function animate(time){
 }
 updateChapter(true);positionIntroMask();frameId=requestAnimationFrame(animate);
 document.addEventListener('visibilitychange',()=>{lastTime=performance.now();lastPaint=lastPaintAt=lastTime;soundscape.suspend(document.hidden||paused);});
-$('#soundToggle').addEventListener('click',async()=>{try{const enabled=await soundscape.setEnabled(!soundscape.enabled);soundscape.suspend(paused||document.hidden);$('#soundToggle').setAttribute('aria-pressed',enabled);$('#soundToggle').setAttribute('aria-label',enabled?'Выключить звук путешествия':'Включить звук путешествия');$('#soundToggle').title=enabled?'Выключить звук путешествия':'Включить звук путешествия';}catch{toast('Звук недоступен в этом браузере.');}});
-let toastTimer;
-function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
-$('#shareButton').addEventListener('click',async()=>{const data={title:'Help Antarctica — почувствовать, чтобы сохранить',text:'Путешествие в мир Антарктики. Над океаном, подо льдом и на берегу.',url:location.origin+location.pathname};try{if(navigator.share){await navigator.share(data);return;}if(navigator.clipboard&&isSecureContext){await navigator.clipboard.writeText(data.url);toast('Ссылка на путешествие скопирована.');return;}openModal('about',$('#shareButton'));}catch(e){if(e.name!=='AbortError')toast('Не удалось поделиться ссылкой. Скопируйте адрес сайта из браузера.');}});
+$('#soundToggle').addEventListener('click',async()=>{try{const enabled=await soundscape.setEnabled(!soundscape.enabled);soundscape.suspend(paused||document.hidden);$('#soundToggle').setAttribute('aria-pressed',enabled);$('#soundToggle').setAttribute('aria-label',enabled?ui.soundOff:ui.soundOn);$('#soundToggle').title=enabled?ui.soundOff:ui.soundOn;}catch{toast('soundUnavailable');}});
+let toastTimer,toastKey='';
+function toast(key){toastKey=key;$('#toast').textContent=ui[key];$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
+$('#shareButton').addEventListener('click',async()=>{const data={title:ui.pageTitle,text:ui.shareText,url:languageURL(language,location.origin+location.pathname)};try{if(navigator.share){await navigator.share(data);return;}if(navigator.clipboard&&isSecureContext){await navigator.clipboard.writeText(data.url);toast('shareCopied');return;}openModal('about',$('#shareButton'));}catch(e){if(e.name!=='AbortError')toast('shareError');}});
 
 addEventListener('pageshow',()=>{depthRenderer.reset();shoreRenderer.reset();resize();});
+
+function localizeJourney(){
+ applyStaticLanguage();
+ for(let i=0;i<scenes.length;i++){
+  const data=scenes[i],scene=sceneEls[i],card=$('.story-card',scene);
+  if(card){
+   $('.card-eyebrow',card).textContent=`${String(i+1).padStart(2,'0')} / ${data.eyebrow.replace(/^\d+ \/ /,'')}`;
+   $('h2',card).innerHTML=data.title;
+   $$('.card-full',card).forEach((p,n)=>p.textContent=n?data.text2:data.text);
+   $('.card-mobile',card).textContent=data.mobileText;$('.card-fact',card).textContent=data.fact;
+   $('.card-link',card).innerHTML=data.cta+arrow;
+  }
+  const image=$('.animal-wrap .animal-image',scene);if(image)image.alt=data.animal==='swimmer'?ui.swimmerAlt:data.subject;
+  const label=$('.animal-wrap .species-label',scene);if(label){label.setAttribute('aria-label',text('infoLabel',{subject:data.subject}));$('.species-name',label).textContent=data.subject;}
+  $('.scene-note',scene).textContent=data.note;
+  const dot=$(`#chapterNav [data-chapter="${i}"]`);dot.dataset.label=data.name;dot.setAttribute('aria-label',text('chapterLabel',{number:i+1,name:data.name}));
+  $(`#routeList [data-chapter="${i}"] .route-item-name`).innerHTML=`${data.name}<small>${data.subject}</small>`;
+ }
+ elephantChapter.setAttribute('aria-label',ui.elephant);shipChapter.setAttribute('aria-label',ui.expedition);
+ const shipHint=$('.ship-info');shipHint.setAttribute('aria-label',text('infoLabel',{subject:ui.researchShip}));$('.species-name',shipHint).textContent=ui.researchShip;
+ const leopardHint=$('.leopard-hint');leopardHint.setAttribute('aria-label',text('infoLabel',{subject:scenes[4].subject}));$('.species-name',leopardHint).textContent=scenes[4].subject;
+ $('#shareButton').textContent=ui.share;
+ $('#albatrossRoute .route-item-name').innerHTML=`${ui.albatrossRoute}<small>${ui.albatrossRouteDetail}</small>`;
+ passages.localize();albatross.localize();
+ $('#headerCenter').textContent=started||opening?ui.taglineJourney:ui.taglineIntro;
+ $('#snowToggle').setAttribute('aria-label',snowOn?ui.snowOff:ui.snowOn);$('#snowToggle').title=snowOn?ui.snowOff:ui.snowOn;
+ $('#soundToggle').setAttribute('aria-label',soundscape.enabled?ui.soundOff:ui.soundOn);$('#soundToggle').title=soundscape.enabled?ui.soundOff:ui.soundOn;
+ $('#motionToggle').setAttribute('aria-label',paused?ui.resume:ui.pause);
+ if(toastKey&&$('#toast').classList.contains('visible'))$('#toast').textContent=ui[toastKey];
+ updateChapter(true);
+}
+$('#languageSwitch').addEventListener('click',()=>{
+ const next=language==='ru'?'en':'ru';if(!setLanguage(next))return;
+ scenes=language==='en'?englishScenes:russianScenes;modals=language==='en'?englishModals:russianModals;
+ history.replaceState(null,'',languageURL(language,location.href));
+ localizeJourney();
+});
+localizeJourney();

@@ -1,4 +1,6 @@
 import {imageAssets,fontAssets} from './asset-manifest.mjs?v=47';
+import {text,applyStaticLanguage} from './i18n.mjs?v=51';
+applyStaticLanguage();
 
 // No fixed-duration escape: the mark remains until every active image has
 // finished loading/decoding and the used webfonts are ready. Failed requests
@@ -11,7 +13,7 @@ if(loader){
  intro.inert=true;header.inert=true;
  const update=()=>{
   loader.dataset.loaded=String(settled);loader.dataset.total=String(total);
-  if(status)status.textContent=`Загрузка ${Math.round(settled/total*100)}%`;
+  if(status)status.textContent=text('loading',{percent:Math.round(settled/total*100)});
  };
  const track=async(name,load)=>{
   try{await load();}catch{failures.push(name);}
